@@ -1,0 +1,36 @@
+name: Build luci-app-vnt
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [x86_64, aarch64_generic]
+        sdk: [openwrt-24.10, SNAPSHOT]
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Building packages
+        uses: sbwml/openwrt-gh-action-sdk@main
+        env:
+          ARCH: ${{ matrix.arch }}-${{ matrix.sdk }}
+          FEEDNAME: packages_ci
+          PACKAGES: luci-app-vnt
+          NO_REFRESH_CHECK: true
+          V: s
+
+      - name: Upload ipk artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: luci-app-vnt-${{ matrix.arch }}-${{ matrix.sdk }}
+          path: bin/packages/*/*/luci-app-vnt*.ipk
