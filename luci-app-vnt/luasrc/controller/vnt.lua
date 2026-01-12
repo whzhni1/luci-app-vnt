@@ -64,7 +64,7 @@ function act_status()
 	if e.crunning then
 		local pid = sys.exec("pidof vnt-cli | awk '{print $1}'"):gsub("%s+", "")
 		if pid ~= "" then
-			e.vntcpu = sys.exec("top -b -n1 2>/dev/null | grep -w " .. pid .. " | awk '{print $7}'"):gsub("%s+", "")
+			e.vntcpu = sys.exec("top -b -n1 2>/dev/null | awk '$1==" .. pid .. "{print $7; exit}'"):gsub("%s+", "")
 			e.vntram = sys.exec("cat /proc/" .. pid .. "/status 2>/dev/null | grep VmRSS | awk '{printf \"%.1fMB\", $2/1024}'"):gsub("%s+", "")
 		end
 		if e.vntcpu == "" then e.vntcpu = "0%" end
@@ -76,7 +76,7 @@ function act_status()
 	if e.srunning then
 		local pid = sys.exec("pidof vnts | awk '{print $1}'"):gsub("%s+", "")
 		if pid ~= "" then
-			e.vntscpu = sys.exec("top -b -n1 2>/dev/null | grep -w " .. pid .. " | awk '{print $7}'"):gsub("%s+", "")
+			e.vntscpu = sys.exec("top -b -n1 2>/dev/null | awk '$1==" .. pid .. "{print $7; exit}'"):gsub("%s+", "")
 			e.vntsram = sys.exec("cat /proc/" .. pid .. "/status 2>/dev/null | grep VmRSS | awk '{printf \"%.1fMB\", $2/1024}'"):gsub("%s+", "")
 		end
 		if e.vntscpu == "" then e.vntscpu = "0%" end
@@ -86,7 +86,7 @@ function act_status()
 	end
 	
 	e.vnttag = sys.exec("$(uci -q get vnt.@vnt-cli[0].clibin) -h 2>/dev/null | grep 'version:' | awk -F':' '{print $2}'"):gsub("%s+", "")
-	e.vntstag = sys.exec("$(uci -q get vnt.@vnts[0].vntsbin) -V 2>/dev/null | awk -F': ' '{print $2}'"):gsub("%s+", "")
+	e.vntstag = sys.exec("$(uci -q get vnt.@vnts[0].vntsbin) -V 2>/dev/null | awk '/^version:/{print $2; exit}'"):gsub("%s+", "")
 	
 	luci.http.prepare_content("application/json")
 	luci.http.write_json(e)
