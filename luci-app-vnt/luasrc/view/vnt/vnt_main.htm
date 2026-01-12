@@ -1,58 +1,62 @@
 <%+header%>
 <style>
-:root{--c1:#4a90d9;--c2:#28a745;--c3:#dc3545;--c4:#ffc107;--bg:#f8f9fa;--shadow:0 2px 8px rgba(0,0,0,.1)}
-*{box-sizing:border-box}
-.vnt-wrap{max-width:1200px;margin:0 auto}
+:root{--bg:#454141;--card:#454141;--border:#5a5555;--text:#e0e0e0;--text2:#aaa;--accent:#4a90d9;--green:#28a745;--red:#dc3545;--yellow:#ffc107}
+.vnt-wrap{max-width:1200px;margin:0 auto;padding:15px}
 .row{display:flex;gap:15px;margin-bottom:15px;flex-wrap:wrap}
 .col{flex:1;min-width:300px}
-.card{background:#fff;border-radius:8px;box-shadow:var(--shadow);overflow:hidden}
-.card-head{background:linear-gradient(135deg,var(--c1),#357abd);color:#fff;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;font-weight:600}
-.card-head .icons{display:flex;gap:8px}
-.card-head .icons span{cursor:pointer;opacity:.9;font-size:18px;transition:all .2s}
-.card-head .icons span:hover{opacity:1;transform:scale(1.1)}
+.card{background:var(--card);border-radius:8px;border:1px solid var(--border);overflow:hidden}
+.card-head{background:linear-gradient(135deg,#3a3636,#2d2a2a);color:#fff;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:15px}
+.card-head .icons{display:flex;gap:10px}
+.card-head .icons span{cursor:pointer;opacity:.85;font-size:18px;transition:all .2s;padding:4px}
+.card-head .icons span:hover{opacity:1;transform:scale(1.15)}
 .card-body{padding:15px}
-.info-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee}
+.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);color:var(--text)}
 .info-row:last-child{border:none}
-.info-row .label{color:#666}
+.info-row .label{color:var(--text2)}
 .info-row .value{font-weight:500}
-.st-on{color:var(--c2)}.st-off{color:var(--c3)}
-.md-p2p{color:var(--c2)}.md-relay{color:var(--c4)}
-.rt-good{color:var(--c2)}.rt-mid{color:var(--c4)}.rt-bad{color:var(--c3)}
-
-/* 按钮组 */
-.btn-group{display:flex;gap:10px;padding:15px;background:#f0f0f0;border-radius:8px 8px 0 0}
-.btn{padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-weight:600;transition:all .2s;
-    background:linear-gradient(180deg,#fff 0%,#e8e8e8 100%);box-shadow:0 2px 4px rgba(0,0,0,.15),inset 0 1px 0 #fff}
-.btn:hover{transform:translateY(-1px);box-shadow:0 4px 8px rgba(0,0,0,.2)}
-.btn:active,.btn.active{transform:translateY(1px);box-shadow:inset 0 2px 4px rgba(0,0,0,.1);
-    background:linear-gradient(180deg,var(--c1) 0%,#357abd 100%);color:#fff}
-.btn-icon{width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;font-size:18px;margin-left:auto}
-
-/* 内容区 */
-.content-box{background:#fff;border-radius:0 0 8px 8px;min-height:200px;padding:15px;position:relative}
+.st-on{color:var(--green)}.st-off{color:var(--red)}
+.md-p2p{color:var(--green);font-weight:600}.md-relay{color:var(--yellow);font-weight:600}
+.rt-good{color:var(--green)}.rt-mid{color:var(--yellow)}.rt-bad{color:var(--red)}
+.panel{background:var(--card);border-radius:8px;border:1px solid var(--border);margin-bottom:15px}
+.btn-bar{display:flex;gap:8px;padding:12px 15px;background:#3a3636;border-bottom:1px solid var(--border);align-items:center;flex-wrap:wrap}
+.btn{padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:600;font-size:13px;transition:all .15s;color:#333;
+    background:linear-gradient(180deg,#f0f0f0 0%,#d5d5d5 100%);box-shadow:0 2px 4px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.8)}
+.btn:hover{transform:translateY(-1px);box-shadow:0 3px 6px rgba(0,0,0,.25)}
+.btn:active,.btn.active{transform:translateY(0);background:linear-gradient(180deg,var(--accent) 0%,#357abd 100%);color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,.2)}
+.btn-icon{width:34px;height:34px;padding:0;display:flex;align-items:center;justify-content:center;font-size:16px;margin-left:auto;background:linear-gradient(180deg,#555 0%,#444 100%);color:#fff}
+.btn-icon:hover{background:linear-gradient(180deg,#666 0%,#555 100%)}
+.content-box{min-height:180px;padding:15px;color:var(--text)}
 .dtable{width:100%;border-collapse:collapse}
-.dtable th,.dtable td{padding:10px 12px;text-align:left;border-bottom:1px solid #eee}
-.dtable th{background:var(--c1);color:#fff}
-.dtable tr:hover{background:#f5f5f5}
-.empty{text-align:center;padding:40px;color:#999}
-
-/* 弹窗 */
-.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.dtable th,.dtable td{padding:10px;text-align:left;border-bottom:1px solid var(--border)}
+.dtable th{background:#3a3636;color:#fff;font-weight:600}
+.dtable tr:hover{background:#4a4545}
+.dtable code{background:#333;padding:2px 6px;border-radius:3px}
+.empty{text-align:center;padding:40px;color:var(--text2)}
+.content-box pre{background:#2d2a2a;color:#d4d4d4;padding:12px;border-radius:5px;overflow-x:auto;margin:0;font-size:13px;white-space:pre-wrap;word-break:break-all}
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center}
 .modal.show{display:flex}
-.modal-box{background:#fff;border-radius:10px;width:90%;max-width:800px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.3)}
-.modal-head{padding:15px 20px;background:linear-gradient(135deg,var(--c1),#357abd);color:#fff;display:flex;justify-content:space-between;align-items:center;border-radius:10px 10px 0 0}
-.modal-head h3{margin:0;font-size:18px}
-.modal-close{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;opacity:.8}
+.modal-box{background:#3a3636;border-radius:10px;width:92%;max-width:700px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.5);border:1px solid #555}
+.modal-box.large{max-width:900px;max-height:90vh}
+.modal-head{padding:14px 18px;background:linear-gradient(135deg,var(--accent),#357abd);color:#fff;display:flex;justify-content:space-between;align-items:center;border-radius:10px 10px 0 0}
+.modal-head h3{margin:0;font-size:16px}
+.modal-head .icons{display:flex;gap:12px;align-items:center}
+.modal-head .icons span{cursor:pointer;font-size:18px;opacity:.9}
+.modal-head .icons span:hover{opacity:1}
+.modal-close{font-size:22px;cursor:pointer;opacity:.9}
 .modal-close:hover{opacity:1}
-.modal-body{flex:1;overflow:auto;padding:0}
-.modal-body iframe{width:100%;height:60vh;border:none}
+.modal-body{flex:1;overflow:auto}
 .modal-body.log{padding:15px}
-.modal-body.log pre{background:#1e1e1e;color:#d4d4d4;padding:15px;border-radius:6px;margin:0;max-height:50vh;overflow:auto;font-size:13px}
-.modal-foot{padding:10px 20px;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:10px}
+.modal-body.log pre{background:#1e1e1e;color:#d4d4d4;padding:15px;border-radius:6px;margin:0;max-height:55vh;overflow:auto;font-size:13px;white-space:pre-wrap;word-break:break-all}
+.modal-body iframe{width:100%;height:100%;border:none;min-height:65vh}
+.modal-foot{padding:12px 18px;border-top:1px solid #555;display:flex;justify-content:flex-end;gap:10px}
+.about{background:var(--card);border-radius:8px;border:1px solid var(--border);padding:12px 15px;text-align:center;color:var(--text2)}
+.about a{color:var(--accent)}
+.toast{position:fixed;top:20px;right:20px;background:#333;color:#fff;padding:12px 20px;border-radius:6px;z-index:10000;display:none;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.toast.show{display:block;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 </style>
 
 <div class="vnt-wrap">
-    <!-- 状态行 -->
     <div class="row">
         <div class="col">
             <div class="card">
@@ -60,13 +64,13 @@
                     <span>📡 vnt-cli 状态</span>
                     <div class="icons">
                         <span title="日志" onclick="showLog('client')">📝</span>
-                        <span title="设置" onclick="showSettings('client')">⚙️</span>
+                        <span title="重启" onclick="restartService('client')">🔄</span>
                     </div>
                 </div>
-                <div class="card-body" id="client_status">
+                <div class="card-body">
                     <div class="info-row"><span class="label">状态</span><span class="value" id="c_st">-</span></div>
                     <div class="info-row"><span class="label">已运行</span><span class="value" id="c_time">-</span></div>
-                    <div class="info-row"><span class="label">资源占用</span><span class="value" id="c_res">-</span></div>
+                    <div class="info-row"><span class="label">资源</span><span class="value" id="c_res">-</span></div>
                     <div class="info-row"><span class="label">版本</span><span class="value" id="c_ver">-</span></div>
                 </div>
             </div>
@@ -78,34 +82,30 @@
                     <div class="icons">
                         <span title="日志" onclick="showLog('server')">📝</span>
                         <span title="Web管理" id="web_btn" style="display:none" onclick="openWeb()">🏠</span>
-                        <span title="设置" onclick="showSettings('server')">⚙️</span>
+                        <span title="重启" onclick="restartService('server')">🔄</span>
                     </div>
                 </div>
-                <div class="card-body" id="server_status">
+                <div class="card-body">
                     <div class="info-row"><span class="label">状态</span><span class="value" id="s_st">-</span></div>
                     <div class="info-row"><span class="label">已运行</span><span class="value" id="s_time">-</span></div>
-                    <div class="info-row"><span class="label">资源占用</span><span class="value" id="s_res">-</span></div>
+                    <div class="info-row"><span class="label">资源</span><span class="value" id="s_res">-</span></div>
                     <div class="info-row"><span class="label">版本</span><span class="value" id="s_ver">-</span></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 信息面板 -->
-    <div class="card" style="margin-bottom:15px">
-        <div class="btn-group">
+    <div class="panel">
+        <div class="btn-bar">
             <button class="btn active" data-tab="list" onclick="switchTab('list')">设备列表</button>
             <button class="btn" data-tab="info" onclick="switchTab('info')">连接信息</button>
             <button class="btn" data-tab="route" onclick="switchTab('route')">路由表</button>
             <button class="btn" data-tab="cmd" onclick="switchTab('cmd')">启动参数</button>
             <button class="btn btn-icon" title="刷新" onclick="refreshTab()">🔄</button>
         </div>
-        <div class="content-box" id="tab_content">
-            <div class="empty">加载中...</div>
-        </div>
+        <div class="content-box" id="tab_content"><div class="empty">加载中...</div></div>
     </div>
 
-    <!-- 设置摘要 -->
     <div class="row">
         <div class="col">
             <div class="card">
@@ -137,150 +137,66 @@
         </div>
     </div>
 
-    <!-- 关于 -->
-    <div class="card">
-        <div class="card-body" style="text-align:center;padding:12px">
-            <span>ℹ️ <b>VNT</b> - 简便高效的异地组网工具</span> | 
-            <a href="http://rustvnt.com" target="_blank">官网</a> | 
-            <a href="https://github.com/vnt-dev/vnt" target="_blank">GitHub</a> | 
-            <a href="https://github.com/vnt-dev/VntApp" target="_blank">VntApp</a>
-        </div>
-    </div>
+    <div class="about">ℹ️ <b>VNT</b> - 简便高效的异地组网工具 | <a href="http://rustvnt.com" target="_blank">官网</a> | <a href="https://github.com/vnt-dev/vnt" target="_blank">GitHub</a> | <a href="https://github.com/vnt-dev/VntApp" target="_blank">VntApp</a></div>
 </div>
 
-<!-- 设置弹窗 -->
-<div class="modal" id="modal_settings">
-    <div class="modal-box">
-        <div class="modal-head">
-            <h3 id="settings_title">设置</h3>
-            <button class="modal-close" onclick="closeModal('settings')">&times;</button>
-        </div>
-        <div class="modal-body">
-            <iframe id="settings_iframe"></iframe>
-        </div>
-    </div>
-</div>
-
-<!-- 日志弹窗 -->
 <div class="modal" id="modal_log">
     <div class="modal-box">
-        <div class="modal-head">
-            <h3 id="log_title">日志</h3>
-            <button class="modal-close" onclick="closeModal('log')">&times;</button>
-        </div>
-        <div class="modal-body log">
-            <pre id="log_content">加载中...</pre>
-        </div>
-        <div class="modal-foot">
-            <button class="btn" onclick="clearLog()">清除日志</button>
-            <button class="btn" onclick="refreshLog()">🔄 刷新</button>
-        </div>
+        <div class="modal-head"><h3 id="log_title">日志</h3><div class="icons"><span onclick="refreshLog()">🔄</span><span class="modal-close" onclick="closeModal('log')">✕</span></div></div>
+        <div class="modal-body log"><pre id="log_content">加载中...</pre></div>
+        <div class="modal-foot"><button class="btn" onclick="clearLog()">清除日志</button></div>
     </div>
 </div>
 
+<div class="modal" id="modal_settings">
+    <div class="modal-box large">
+        <div class="modal-head"><h3 id="settings_title">设置</h3><span class="modal-close" onclick="closeModal('settings')">✕</span></div>
+        <div class="modal-body"><iframe id="settings_iframe"></iframe></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-var currentTab = 'list', currentLog = 'client', webPort = 29870;
-var tabApis = {list:'vnt_list', info:'vnt_info', route:'vnt_route', cmd:'vnt_cmd'};
-
+var currentTab='list',currentLog='client',webPort=29870;
+var tabApis={list:'vnt_list',info:'vnt_info',route:'vnt_route',cmd:'vnt_cmd'};
 function $(id){return document.getElementById(id)}
-function ajax(url, cb){
-    var x = new XMLHttpRequest();
-    x.open('GET', url, true);
-    x.onload = function(){cb(x.status==200 ? x.responseText : null)};
-    x.send();
-}
+function ajax(url,cb,data){var x=new XMLHttpRequest();x.open(data?'POST':'GET',url,true);if(data)x.setRequestHeader('Content-Type','application/x-www-form-urlencoded');x.onload=function(){cb(x.status==200?x.responseText:null)};x.send(data)}
+function showToast(msg){var t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},3000)}
 
-// 状态刷新
 function refreshStatus(){
-    ajax('<%=url("admin/vpn/vnt/status")%>', function(r){
-        if(!r) return;
-        var d = JSON.parse(r);
-        $('c_st').innerHTML = d.crunning ? '<span class="st-on">● 运行中</span>' : '<span class="st-off">● 已停止</span>';
-        $('c_time').textContent = d.crunning ? d.vntsta : '-';
-        $('c_res').textContent = d.crunning ? 'CPU: '+d.vntcpu+' / 内存: '+d.vntram : '-';
-        $('c_ver').textContent = d.vnttag || '-';
-        
-        $('s_st').innerHTML = d.srunning ? '<span class="st-on">● 运行中</span>' : '<span class="st-off">● 已停止</span>';
-        $('s_time').textContent = d.srunning ? d.vntsta2 : '-';
-        $('s_res').textContent = d.srunning ? 'CPU: '+d.vntscpu+' / 内存: '+d.vntsram : '-';
-        $('s_ver').textContent = d.vntstag || '-';
-        
-        $('c_token').innerHTML = d.token_set ? '<span class="st-on">✓ 已设置</span>' : '<span class="st-off">✗ 未设置</span>';
-        $('c_mode').textContent = d.mode=='static' ? '手动指定' : '动态分配';
-        $('c_ip').textContent = d.ipaddr || '-';
-        $('c_server').textContent = d.vntshost || '-';
-        
-        $('s_port').textContent = d.server_port;
-        $('s_white').innerHTML = d.white_set ? '<span class="st-on">✓ 已设置</span>' : '<span class="st-off">✗ 未设置</span>';
-        $('s_subnet').textContent = d.subnet;
-        $('s_mask').textContent = d.netmask;
-        
-        $('web_btn').style.display = d.web==1 ? 'inline' : 'none';
-        webPort = d.port;
+    ajax('<%=url("admin/vpn/vnt/status")%>',function(r){
+        if(!r)return;var d=JSON.parse(r);
+        $('c_st').innerHTML=d.crunning?'<span class="st-on">● 运行中</span>':'<span class="st-off">● 已停止</span>';
+        $('c_time').textContent=d.crunning?d.vntsta:'-';
+        $('c_res').textContent=d.crunning?'CPU: '+d.vntcpu+' / 内存: '+d.vntram:'-';
+        $('c_ver').textContent=d.vnttag||'-';
+        $('s_st').innerHTML=d.srunning?'<span class="st-on">● 运行中</span>':'<span class="st-off">● 已停止</span>';
+        $('s_time').textContent=d.srunning?d.vntsta2:'-';
+        $('s_res').textContent=d.srunning?'CPU: '+d.vntscpu+' / 内存: '+d.vntsram:'-';
+        $('s_ver').textContent=d.vntstag||'-';
+        $('c_token').innerHTML=d.token_set?'<span class="st-on">✓ 已设置</span>':'<span class="st-off">✗ 未设置</span>';
+        $('c_mode').textContent=d.mode=='static'?'手动指定':'动态分配';
+        $('c_ip').textContent=d.ipaddr||'-';
+        $('c_server').textContent=d.vntshost||'-';
+        $('s_port').textContent=d.server_port;
+        $('s_white').innerHTML=d.white_set?'<span class="st-on">✓ 已设置</span>':'<span class="st-off">✗ 未设置</span>';
+        $('s_subnet').textContent=d.subnet;
+        $('s_mask').textContent=d.netmask;
+        $('web_btn').style.display=d.web==1?'inline':'none';
+        webPort=d.port;
     });
 }
 
-// Tab切换
-function switchTab(tab){
-    currentTab = tab;
-    document.querySelectorAll('.btn-group .btn[data-tab]').forEach(function(b){
-        b.classList.toggle('active', b.dataset.tab==tab);
-    });
-    refreshTab();
-}
-
-function refreshTab(){
-    $('tab_content').innerHTML = '<div class="empty">加载中...</div>';
-    ajax('<%=url("admin/vpn/vnt")%>/'+tabApis[currentTab], function(r){
-        if(r){
-            var d = JSON.parse(r);
-            $('tab_content').innerHTML = d.html;
-        }else{
-            $('tab_content').innerHTML = '<div class="empty">加载失败</div>';
-        }
-    });
-}
-
-// 弹窗
-function showSettings(type){
-    $('settings_title').textContent = (type=='client'?'vnt-cli':'vnts') + ' 设置';
-    $('settings_iframe').src = '<%=url("admin/vpn/vnt")%>/' + (type=='client'?'client':'server');
-    $('modal_settings').classList.add('show');
-}
-
-function showLog(type){
-    currentLog = type;
-    $('log_title').textContent = (type=='client'?'vnt-cli':'vnts') + ' 日志';
-    $('modal_log').classList.add('show');
-    refreshLog();
-}
-
-function closeModal(name){
-    $('modal_'+name).classList.remove('show');
-    if(name=='settings') refreshStatus();
-}
-
-function refreshLog(){
-    var api = currentLog=='client' ? 'get_log' : 'get_log2';
-    ajax('<%=url("admin/vpn/vnt")%>/'+api, function(r){
-        $('log_content').textContent = r || '暂无日志';
-        $('log_content').scrollTop = $('log_content').scrollHeight;
-    });
-}
-
-function clearLog(){
-    var api = currentLog=='client' ? 'clear_log' : 'clear_log2';
-    ajax('<%=url("admin/vpn/vnt")%>/'+api, function(){refreshLog()});
-}
-
-function openWeb(){
-    window.open('http://'+location.hostname+':'+webPort, '_blank');
-}
-
-// 初始化
-refreshStatus();
-switchTab('list');
-setInterval(refreshStatus, 5000);
+function switchTab(tab){currentTab=tab;document.querySelectorAll('.btn-bar .btn[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab==tab)});refreshTab()}
+function refreshTab(){$('tab_content').innerHTML='<div class="empty">加载中...</div>';ajax('<%=url("admin/vpn/vnt")%>/'+tabApis[currentTab],function(r){$('tab_content').innerHTML=r?JSON.parse(r).html:'<div class="empty">加载失败</div>'})}
+function showLog(type){currentLog=type;$('log_title').textContent=(type=='client'?'vnt-cli':'vnts')+' 日志';$('modal_log').classList.add('show');refreshLog()}
+function refreshLog(){ajax('<%=url("admin/vpn/vnt")%>/'+(currentLog=='client'?'get_log':'get_log2'),function(r){$('log_content').textContent=r||'暂无日志';$('log_content').scrollTop=$('log_content').scrollHeight})}
+function clearLog(){ajax('<%=url("admin/vpn/vnt")%>/'+(currentLog=='client'?'clear_log':'clear_log2'),function(){refreshLog();showToast('日志已清除')})}
+function showSettings(type){$('settings_title').textContent=(type=='client'?'vnt-cli':'vnts')+' 设置';$('settings_iframe').src='<%=url("admin/vpn/vnt")%>/popup_'+type;$('modal_settings').classList.add('show')}
+function closeModal(name){$('modal_'+name).classList.remove('show');if(name=='settings'){$('settings_iframe').src='';refreshStatus()}}
+function restartService(type){showToast((type=='client'?'vnt-cli':'vnts')+' 正在重启...');ajax('<%=url("admin/vpn/vnt")%>/restart_'+(type=='client'?'client':'server'),function(){setTimeout(refreshStatus,2000)})}
+function openWeb(){window.open('http://'+location.hostname+':'+webPort,'_blank')}
+refreshStatus();switchTab('list');setInterval(refreshStatus,5000);
 </script>
-
 <%+footer%>
