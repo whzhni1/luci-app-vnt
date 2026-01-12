@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>vnts 设置</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f5f5f5;color:#333}
+.tabs{display:flex;background:#4a90d9}
+.tab{padding:12px 24px;color:rgba(255,255,255,.8);cursor:pointer;font-weight:500;border-bottom:3px solid transparent}
+.tab:hover{background:rgba(255,255,255,.1);color:#fff}
+.tab.active{color:#fff;border-bottom-color:#fff;background:rgba(255,255,255,.15)}
+.content{display:none;padding:20px;max-height:calc(100vh - 120px);overflow-y:auto}
+.content.active{display:block}
+.form-group{margin-bottom:16px}
+.form-group>label{display:block;font-weight:500;margin-bottom:6px;color:#333}
+.form-group input[type="text"],.form-group input[type="password"],.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1px solid #ccc;border-radius:4px;font-size:14px}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#4a90d9;outline:none}
+.form-group textarea{resize:vertical;min-height:80px;font-family:monospace}
+.form-row{display:flex;gap:15px}
+.form-row .form-group{flex:1}
+.form-check{display:flex;align-items:center;gap:8px;padding:8px 0}
+.form-check input{width:18px;height:18px}
+.form-tip{font-size:12px;color:#888;margin-top:4px}
+.dlist{margin-top:8px}
+.dlist-item{display:flex;gap:8px;margin-bottom:6px}
+.dlist-item input{flex:1}
+.dlist-item .del{padding:8px 12px;background:#dc3545;border:none;color:#fff;border-radius:4px;cursor:pointer}
+.btn-add{padding:6px 12px;background:#6c757d;border:none;color:#fff;border-radius:4px;cursor:pointer;font-size:12px;margin-top:4px}
+.footer{padding:15px 20px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0}
+.btn{padding:10px 24px;border:none;border-radius:5px;cursor:pointer;font-weight:600;font-size:14px}
+.btn-primary{background:linear-gradient(180deg,#4a90d9,#357abd);color:#fff}
+.btn-primary:hover{background:linear-gradient(180deg,#5a9fe9,#4a90d9)}
+.btn-secondary{background:#6c757d;color:#fff}
+</style>
+</head><body>
+<div class="tabs">
+    <div class="tab active" onclick="switchTab(0)">基本设置</div>
+    <div class="tab" onclick="switchTab(1)">高级设置</div>
+</div>
+
+<div class="content active" id="tab0">
+    <div class="form-check"><input type="checkbox" id="enabled"><label for="enabled">启用 vnts</label></div>
+    <div class="form-row">
+        <div class="form-group"><label>监听端口</label><input type="text" id="server_port" placeholder="29872"></div>
+        <div class="form-group"><label>DHCP网关</label><input type="text" id="subnet" placeholder="10.26.0.1"></div>
+    </div>
+    <div class="form-group"><label>子网掩码</label><input type="text" id="servern_netmask" placeholder="255.255.255.0"></div>
+    <div class="form-group"><label>Token白名单</label><div class="dlist" id="white_Token_list"></div><button type="button" class="btn-add" onclick="addItem('white_Token')">+ 添加</button><div class="form-tip">留空则不限制</div></div>
+    <div class="form-check"><input type="checkbox" id="web" onchange="toggleWeb()"><label for="web">启用WEB管理</label></div>
+    <div id="web_wrap" style="display:none">
+        <div class="form-row">
+            <div class="form-group"><label>WEB端口</label><input type="text" id="web_port" placeholder="29870"></div>
+            <div class="form-group"><label>帐号</label><input type="text" id="webuser"></div>
+        </div>
+        <div class="form-group"><label>密码</label><input type="password" id="webpass"></div>
+        <div class="form-check"><input type="checkbox" id="web_wan"><label for="web_wan">允许外网访问WEB</label></div>
+    </div>
+    <div class="form-check"><input type="checkbox" id="logs"><label for="logs">启用日志</label></div>
+</div>
+
+<div class="content" id="tab1">
+    <div class="form-group"><label>程序路径</label><input type="text" id="vntsbin" placeholder="/usr/bin/vnts"></div>
+    <div class="form-check"><input type="checkbox" id="sfinger"><label for="sfinger">数据指纹校验</label></div>
+    <div class="form-group"><label>公钥 (public_key.pem)</label><textarea id="public_key" placeholder="可选，留空使用自动生成"></textarea></div>
+    <div class="form-group"><label>私钥 (private_key.pem)</label><textarea id="private_key" placeholder="可选，留空使用自动生成"></textarea><div class="form-tip">服务端密钥用于加密客户端和服务端之间传输的数据</div></div>
+</div>
+
+<div class="footer">
+    <button class="btn btn-secondary" onclick="parent.closeModal('settings')">取消</button>
+    <button class="btn btn-primary" onclick="saveConfig()">保存并应用</button>
+</div>
+
+<script>
+var cfg={};
+function $(id){return document.getElementById(id)}
+function ajax(url,cb,data){var x=new XMLHttpRequest();x.open(data?'POST':'GET',url,true);if(data)x.setRequestHeader('Content-Type','application/x-www-form-urlencoded');x.onload=function(){cb&&cb(x.responseText)};x.send(data)}
+
+function switchTab(i){document.querySelectorAll('.tab').forEach(function(t,j){t.classList.toggle('active',j==i)});document.querySelectorAll('.content').forEach(function(c,j){c.classList.toggle('active',j==i)})}
+function toggleWeb(){$('web_wrap').style.display=$('web').checked?'block':'none'}
+
+function addItem(name,val){
+    var list=$(name+'_list'),div=document.createElement('div');
+    div.className='dlist-item';
+    div.innerHTML='<input type="text" value="'+(val||'')+'" placeholder=""><button type="button" class="del" onclick="this.parentNode.remove()">✕</button>';
+    list.appendChild(div);
+}
+function getListValues(name){
+    var vals=[];
+    $(name+'_list').querySelectorAll('input').forEach(function(inp){if(inp.value)vals.push(inp.value)});
+    return vals;
+}
+
+function loadConfig(){
+    ajax('<%=url("admin/vpn/vnt/get_config")%>',function(r){
+        cfg=JSON.parse(r);
+        $('enabled').checked=cfg.s_enabled=='1';
+        $('server_port').value=cfg.s_server_port||'';
+        $('subnet').value=cfg.s_subnet||'';
+        $('servern_netmask').value=cfg.s_servern_netmask||'';
+        $('web').checked=cfg.s_web=='1';toggleWeb();
+        $('web_port').value=cfg.s_web_port||'';
+        $('webuser').value=cfg.s_webuser||'';
+        $('webpass').value=cfg.s_webpass||'';
+        $('web_wan').checked=cfg.s_web_wan=='1';
+        $('logs').checked=cfg.s_logs=='1';
+        $('vntsbin').value=cfg.s_vntsbin||'';
+        $('sfinger').checked=cfg.s_sfinger=='1';
+        
+        var wt=cfg.s_white_Token;
+        if(wt){
+            if(typeof wt=='string')addItem('white_Token',wt);
+            else if(Array.isArray(wt))wt.forEach(function(v){addItem('white_Token',v)});
+        }else{addItem('white_Token')}
+    });
+    ajax('/cgi-bin/luci/admin/vpn/vnt/get_keys',function(r){
+        try{var k=JSON.parse(r);$('public_key').value=k.pub||'';$('private_key').value=k.pri||''}catch(e){}
+    });
+}
+
+function saveConfig(){
+    var data={
+        enabled:$('enabled').checked?'1':'0',
+        server_port:$('server_port').value,
+        subnet:$('subnet').value,
+        servern_netmask:$('servern_netmask').value,
+        white_Token:getListValues('white_Token'),
+        web:$('web').checked?'1':'0',
+        web_port:$('web_port').value,
+        webuser:$('webuser').value,
+        webpass:$('webpass').value,
+        web_wan:$('web_wan').checked?'1':'0',
+        logs:$('logs').checked?'1':'0',
+        vntsbin:$('vntsbin').value,
+        sfinger:$('sfinger').checked?'1':'0'
+    };
+    ajax('<%=url("admin/vpn/vnt/save_server")%>',function(){parent.closeModal('settings')},'data='+encodeURIComponent(JSON.stringify(data)));
+}
+
+loadConfig();
+</script>
+</body></html>
