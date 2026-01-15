@@ -1,9 +1,6 @@
 name: Build luci-app-vnt
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
