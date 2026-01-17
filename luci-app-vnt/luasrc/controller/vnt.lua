@@ -1,284 +1,216 @@
 module("luci.controller.vnt", package.seeall)
 
-function index()
-	if not nixio.fs.access("/etc/config/vnt") then return end
-	
-	entry({"admin", "vpn", "vnt"}, template("vnt/vnt_main"), _("VNT"), 44)
-	entry({"admin", "vpn", "vnt", "popup_client"}, template("vnt/popup_client")).leaf = true
-	entry({"admin", "vpn", "vnt", "popup_server"}, template("vnt/popup_server")).leaf = true
-	entry({"admin", "vpn", "vnt", "status"}, call("act_status")).leaf = true
-	entry({"admin", "vpn", "vnt", "restart"}, call("do_restart")).leaf = true
-	entry({"admin", "vpn", "vnt", "get_log"}, call("get_log")).leaf = true
-	entry({"admin", "vpn", "vnt", "get_log2"}, call("get_log2")).leaf = true
-	entry({"admin", "vpn", "vnt", "clear_log"}, call("clear_log")).leaf = true
-	entry({"admin", "vpn", "vnt", "clear_log2"}, call("clear_log2")).leaf = true
-	entry({"admin", "vpn", "vnt", "get_config"}, call("get_config")).leaf = true
-	entry({"admin", "vpn", "vnt", "save_client"}, call("save_client")).leaf = true
-	entry({"admin", "vpn", "vnt", "save_server"}, call("save_server")).leaf = true
-	entry({"admin", "vpn", "vnt", "get_ifaces"}, call("get_ifaces")).leaf = true
-	entry({"admin", "vpn", "vnt", "get_keys"}, call("get_keys")).leaf = true
-	entry({"admin", "vpn", "vnt", "upload"}, call("do_upload")).leaf = true
-	entry({"admin", "vpn", "vnt", "vnt_info"}, call("vnt_info")).leaf = true
-	entry({"admin", "vpn", "vnt", "vnt_list"}, call("vnt_list")).leaf = true
-	entry({"admin", "vpn", "vnt", "vnt_route"}, call("vnt_route")).leaf = true
-	entry({"admin", "vpn", "vnt", "vnt_cmd"}, call("vnt_cmd")).leaf = true
+local sys, http, nixio = require "luci.sys", require "luci.http", require "nixio"
+
+local function json(d) http.prepare_content("application/json") http.write_json(d) end
+local function exec(c) return sys.exec(c .. " 2>/dev/null"):gsub("%s+$", "") end
+local function read(p) local f = io.open(p, "r") if not f then return end local c = f:read("*all") f:close() return c end
+
+local function runtime(f)
+    local c = read(f) if not c then return "-" end
+    local s = tonumber(c) if not s then return "-" end
+    local d = os.time() - s
+    local D, H, M = math.floor(d/86400), math.floor(d%86400/3600), math.floor(d%3600/60)
+    return D > 0 and string.format("%d天%02d时%02d分", D, H, M) or string.format("%02d时%02d分%02d秒", H, M, d%60)
 end
 
-function act_status()
-	local sys = require "luci.sys"
-	local uci = require "luci.model.uci".cursor()
-	local e = {}
-	
-	e.crunning = sys.call("pgrep vnt-cli >/dev/null") == 0
-	e.srunning = sys.call("pgrep vnts >/dev/null") == 0
-	e.web = tonumber(uci:get_first("vnt", "vnts", "web")) or 0
-	e.port = tonumber(uci:get_first("vnt", "vnts", "web_port")) or 29870
-	
-	local token = uci:get_first("vnt", "vnt-cli", "token")
-	e.token_set = (token and token ~= "") and 1 or 0
-	local white = uci:get_first("vnt", "vnts", "white_Token")
-	e.white_set = (white and ((type(white)=="table" and #white>0) or (type(white)=="string" and white~=""))) and 1 or 0
-	
-	e.mode = uci:get_first("vnt", "vnt-cli", "mode") or "dhcp"
-	e.ipaddr = uci:get_first("vnt", "vnt-cli", "ipaddr") or ""
-	e.vntshost = uci:get_first("vnt", "vnt-cli", "vntshost") or ""
-	e.server_port = uci:get_first("vnt", "vnts", "server_port") or "29872"
-	e.subnet = uci:get_first("vnt", "vnts", "subnet") or "10.26.0.1"
-	e.netmask = uci:get_first("vnt", "vnts", "servern_netmask") or "255.255.255.0"
-	local function get_runtime(file)
-		local f = io.open(file, "r")
-		if f then
-			local t = f:read("*all"); f:close()
-			local start = tonumber(t)
-			if start then
-				local diff = os.time() - start
-				local d, h, m = math.floor(diff/86400), math.floor((diff%86400)/3600), math.floor((diff%3600)/60)
-				return d > 0 and string.format("%d天%02d时%02d分", d, h, m) or string.format("%02d时%02d分%02d秒", h, m, diff%60)
-			end
-		end
-		return "-"
-	end
-	e.vntsta, e.vntsta2 = get_runtime("/tmp/vnt_time"), get_runtime("/tmp/vnts_time")
-	if e.crunning then
-		local pid = sys.exec("pidof vnt-cli 2>/dev/null | awk '{print $1}'"):gsub("%s+", "")
-		if pid ~= "" then
-			e.vntcpu = sys.exec("top -b -n1 2>/dev/null | awk '$1==" .. pid .. "{print $7; exit}'"):gsub("%s+", "")
-			e.vntram = sys.exec("cat /proc/" .. pid .. "/status 2>/dev/null | awk '/VmRSS/{printf \"%.1fMB\", $2/1024}'"):gsub("%s+", "")
-		end
-		if not e.vntcpu or e.vntcpu == "" then e.vntcpu = "0%" end
-		if not e.vntram or e.vntram == "" then e.vntram = "-" end
-	else
-		e.vntcpu, e.vntram = "-", "-"
-	end
-	if e.srunning then
-		local pid = sys.exec("pidof vnts 2>/dev/null | awk '{print $1}'"):gsub("%s+", "")
-		if pid ~= "" then
-			e.vntscpu = sys.exec("top -b -n1 2>/dev/null | awk '$1==" .. pid .. "{print $7; exit}'"):gsub("%s+", "")
-			e.vntsram = sys.exec("cat /proc/" .. pid .. "/status 2>/dev/null | awk '/VmRSS/{printf \"%.1fMB\", $2/1024}'"):gsub("%s+", "")
-		end
-		if not e.vntscpu or e.vntscpu == "" then e.vntscpu = "0%" end
-		if not e.vntsram or e.vntsram == "" then e.vntsram = "-" end
-	else
-		e.vntscpu, e.vntsram = "-", "-"
-	end
-	e.vnttag = sys.exec("$(uci -q get vnt.@vnt-cli[0].clibin) -h 2>/dev/null | grep 'version:' | awk -F':' '{print $2}'"):gsub("%s+", "")
-	e.vntstag = sys.exec("$(uci -q get vnt.@vnts[0].vntsbin) -V 2>/dev/null | awk '/^version:/{print $2; exit}'"):gsub("%s+", "")
-	
-	luci.http.prepare_content("application/json")
-	luci.http.write_json(e)
+local function proc(n)
+    if sys.call("pgrep " .. n .. " >/dev/null") ~= 0 then return false, "-", "-" end
+    local p = exec("pidof " .. n .. " | awk '{print $1}'")
+    if p == "" then return true, "0%", "-" end
+    local cpu = exec("top -b -n1 | awk '$1==" .. p .. "{print $7}'")
+    local ram = exec("cat /proc/" .. p .. "/status | awk '/VmRSS/{printf \"%.1fMB\", $2/1024}'")
+    return true, cpu ~= "" and cpu or "0%", ram ~= "" and ram or "-"
+end
+
+local function parse_list(v)
+    local t = {}
+    if v and v ~= "" then for i in v:gmatch("[^|]+") do i = i:match("^%s*(.-)%s*$") if i ~= "" then t[#t+1] = i end end end
+    return t
+end
+
+local function save_cfg(typ, singles, lists, extra)
+    local uci = require "luci.model.uci".cursor()
+    local sec = uci:get_first("vnt", typ)
+    if not sec then return json({status = "error"}) end
+    for _, n in ipairs(singles) do local v = http.formvalue(n) if v then uci:set("vnt", sec, n, v) end end
+    for _, n in ipairs(lists or {}) do
+        local items = parse_list(http.formvalue(n))
+        if #items > 0 then uci:set_list("vnt", sec, n, items) else uci:delete("vnt", sec, n) end
+    end
+    if extra then extra(uci, sec) end
+    uci:commit("vnt")
+    os.execute("/etc/init.d/vnt restart >/dev/null 2>&1 &")
+    json({status = "ok"})
+end
+
+local function build_table(cmd, hdrs, row_fn, empty)
+    local d = exec(cmd)
+    if d == "" or d:match("[Ee]rror") then return json({html = "<div class='empty'>" .. (empty or "程序未运行") .. "</div>"}) end
+    local h = "<table class='dtable'><tr>"
+    for _, hdr in ipairs(hdrs) do h = h .. "<th>" .. hdr .. "</th>" end
+    h = h .. "</tr>"
+    local first = true
+    for l in d:gmatch("[^\r\n]+") do
+        if first then first = false else
+            local cols = {} for c in l:gmatch("%S+") do cols[#cols+1] = c end
+            local row = row_fn(cols) if row then h = h .. row end
+        end
+    end
+    json({html = h .. "</table>"})
+end
+
+local function log_op(op, t)
+    local base = t == "s" and "/tmp/vnts" or "/tmp/vnt-cli"
+    if op == "g" then http.write(read(base .. ".log") or "暂无日志")
+    else os.execute("rm -f " .. base .. "*.log") json({status = "ok"}) end
+end
+
+function index()
+    if not nixio.fs.access("/etc/config/vnt") then return end
+    entry({"admin", "vpn", "vnt"}, template("vnt/vnt_main"), _("VNT"), 44)
+    local R = {"popup_client", "popup_server", "status", "restart", "get_log", "get_log2", "clear_log", "clear_log2",
+        "get_config", "save_client", "save_server", "get_ifaces", "get_keys", "vnt_info", "vnt_list", "vnt_route", "vnt_cmd", "get_update", "do_install"}
+    for _, r in ipairs(R) do entry({"admin", "vpn", "vnt", r}, r:match("^popup_") and template("vnt/" .. r) or call(r)).leaf = true end
+end
+
+function status()
+    local uci = require "luci.model.uci".cursor()
+    local e = {}
+    e.crunning, e.vntcpu, e.vntram = proc("vnt-cli")
+    e.srunning, e.vntscpu, e.vntsram = proc("vnts")
+    e.vntsta, e.vntsta2 = runtime("/tmp/vnt_time"), runtime("/tmp/vnts_time")
+    e.web = tonumber(uci:get_first("vnt", "vnts", "web")) or 0
+    e.port = tonumber(uci:get_first("vnt", "vnts", "web_port")) or 29870
+    local token = uci:get_first("vnt", "vnt-cli", "token")
+    e.token_set = (token and token ~= "") and 1 or 0
+    local white = uci:get_first("vnt", "vnts", "white_Token")
+    e.white_set = (white and ((type(white)=="table" and #white>0) or (type(white)=="string" and white~=""))) and 1 or 0
+    e.mode = uci:get_first("vnt", "vnt-cli", "mode") or "dhcp"
+    e.ipaddr = uci:get_first("vnt", "vnt-cli", "ipaddr") or ""
+    e.vntshost = uci:get_first("vnt", "vnt-cli", "vntshost") or ""
+    e.server_port = uci:get_first("vnt", "vnts", "server_port") or "29872"
+    e.subnet = uci:get_first("vnt", "vnts", "subnet") or "10.26.0.1"
+    e.netmask = uci:get_first("vnt", "vnts", "servern_netmask") or "255.255.255.0"
+    e.vnttag = exec("$(uci -q get vnt.@vnt-cli[0].clibin) -h | grep 'version:' | awk -F':' '{print $2}'")
+    e.vntstag = exec("$(uci -q get vnt.@vnts[0].vntsbin) -V | awk '/^version:/{print $2}'")
+    json(e)
 end
 
 function get_config()
-	local uci = require "luci.model.uci".cursor()
-	local e = {}
-	local cs = uci:get_first("vnt", "vnt-cli")
-	if cs then for k,v in pairs(uci:get_all("vnt", cs)) do e["c_"..k] = v end end
-	local ss = uci:get_first("vnt", "vnts")
-	if ss then for k,v in pairs(uci:get_all("vnt", ss)) do e["s_"..k] = v end end
-	luci.http.prepare_content("application/json")
-	luci.http.write_json(e)
+    local uci, e = require "luci.model.uci".cursor(), {}
+    for _, c in ipairs({{"vnt-cli", "c_"}, {"vnts", "s_"}}) do
+        local s = uci:get_first("vnt", c[1])
+        if s then for k, v in pairs(uci:get_all("vnt", s)) do e[c[2]..k] = v end end
+    end
+    json(e)
 end
 
 function get_keys()
-	local nixio = require "nixio"
-	local e = {}
-	e.public_key = nixio.fs.readfile("/tmp/vnts_key/public_key.pem") or ""
-	e.private_key = nixio.fs.readfile("/tmp/vnts_key/private_key.pem") or ""
-	luci.http.prepare_content("application/json")
-	luci.http.write_json(e)
+    json({public_key = read("/tmp/vnts_key/public_key.pem") or "", private_key = read("/tmp/vnts_key/private_key.pem") or ""})
 end
 
 function save_client()
-	local uci = require "luci.model.uci".cursor()
-	local http = require "luci.http"
-	local json = require "luci.jsonc"
-	local section = uci:get_first("vnt", "vnt-cli")
-	local data = json.parse(http.formvalue("data") or "{}")
-	if data then
-		local lists = {localadd=1,peeradd=1,vntdns=1,stunhost=1,mapping=1,checkip=1,vnt_forward=1}
-		for k, v in pairs(data) do
-			if lists[k] then
-				uci:delete("vnt", section, k)
-				if type(v) == "table" then
-					for _, item in ipairs(v) do if item ~= "" then uci:add_list("vnt", section, k, item) end end
-				elseif v ~= "" then uci:add_list("vnt", section, k, v) end
-			else
-				uci:set("vnt", section, k, v)
-			end
-		end
-		uci:commit("vnt")
-		luci.sys.call("/etc/init.d/vnt restart >/dev/null 2>&1 &")
-	end
-	http.prepare_content("application/json")
-	http.write_json({status = "ok"})
+    save_cfg("vnt-cli",
+        {"enabled", "token", "mode", "ipaddr", "desvice_id", "desvice_name", "forward", "allow_wg", "log", "clibin",
+         "vntshost", "tunname", "relay", "punch", "passmode", "key", "client_port", "mtu", "local_dev", "serverw",
+         "finger", "first_latency", "disable_stats", "check", "checktime", "comp"},
+        {"localadd", "peeradd", "vntdns", "stunhost", "mapping", "checkip", "vnt_forward"})
 end
 
 function save_server()
-	local uci = require "luci.model.uci".cursor()
-	local http = require "luci.http"
-	local json = require "luci.jsonc"
-	local nixio = require "nixio"
-	local section = uci:get_first("vnt", "vnts")
-	local data = json.parse(http.formvalue("data") or "{}")
-	if data then
-		local lists = {white_Token=1}
-		for k, v in pairs(data) do
-			if k == "public_key" then
-				if v ~= "" then
-					nixio.fs.mkdir("/tmp/vnts_key")
-					nixio.fs.writefile("/tmp/vnts_key/public_key.pem", v:gsub("\r\n", "\n"))
-				end
-			elseif k == "private_key" then
-				if v ~= "" then
-					nixio.fs.mkdir("/tmp/vnts_key")
-					nixio.fs.writefile("/tmp/vnts_key/private_key.pem", v:gsub("\r\n", "\n"))
-				end
-			elseif lists[k] then
-				uci:delete("vnt", section, k)
-				if type(v) == "table" then
-					for _, item in ipairs(v) do if item ~= "" then uci:add_list("vnt", section, k, item) end end
-				elseif v ~= "" then uci:add_list("vnt", section, k, v) end
-			else
-				uci:set("vnt", section, k, v)
-			end
-		end
-		uci:commit("vnt")
-		luci.sys.call("/etc/init.d/vnt restart >/dev/null 2>&1 &")
-	end
-	http.prepare_content("application/json")
-	http.write_json({status = "ok"})
+    save_cfg("vnts", {"enabled", "server_port", "subnet", "servern_netmask", "web", "web_port", "webuser", "webpass", "web_wan", "logs", "vntsbin", "sfinger"}, nil,
+        function(uci, sec)
+            uci:delete("vnt", sec, "white_Token")
+            local vals = http.formvaluetable("white_Token")
+            if vals then for _, v in pairs(vals) do if v and v ~= "" then uci:add_list("vnt", sec, "white_Token", v) end end end
+            for _, k in ipairs({{"public_key", "public_key.pem"}, {"private_key", "private_key.pem"}}) do
+                local v = http.formvalue(k[1])
+                if v and v ~= "" then nixio.fs.mkdir("/tmp/vnts_key") nixio.fs.writefile("/tmp/vnts_key/" .. k[2], v:gsub("\r\n", "\n")) end
+            end
+        end)
 end
 
 function get_ifaces()
-	local sys = require "luci.sys"
-	local result = {}
-	local ifaces = sys.exec("ls /sys/class/net 2>/dev/null")
-	for iface in ifaces:gmatch("%S+") do
-		local ip = sys.exec("ip -4 addr show " .. iface .. " 2>/dev/null | awk '/inet /{print $2}' | cut -d'/' -f1"):gsub("%s+", "")
-		if ip ~= "" then table.insert(result, {name = iface, ip = ip}) end
-	end
-	luci.http.prepare_content("application/json")
-	luci.http.write_json(result)
+    local r = {}
+    for iface in exec("ls /sys/class/net"):gmatch("%S+") do
+        local ip = exec("ip -4 addr show " .. iface .. " | awk '/inet /{print $2}' | cut -d'/' -f1")
+        if ip ~= "" then r[#r+1] = {name = iface, ip = ip} end
+    end
+    json(r)
 end
 
-function do_upload()
-	local http = require "luci.http"
-	local fp, filename
-	http.setfilehandler(function(meta, chunk, eof)
-		if not fp and meta and meta.name == "file" then
-			filename = meta.file
-			fp = io.open("/tmp/" .. filename, "w")
-		end
-		if fp and chunk then fp:write(chunk) end
-		if eof and fp then
-			fp:close()
-			if filename:match("%.tar%.gz$") then
-				os.execute("tar -xzf /tmp/" .. filename .. " -C /tmp/")
-			end
-			os.execute("chmod +x /tmp/vnt-cli /tmp/vnts 2>/dev/null")
-		end
-	end)
-	http.formvalue("file")
-	http.prepare_content("application/json")
-	http.write_json({status = "ok", file = filename})
-end
-
-function do_restart()
-	luci.sys.call("/etc/init.d/vnt restart >/dev/null 2>&1 &")
-	luci.http.prepare_content("application/json")
-	luci.http.write_json({status = "ok"})
-end
-
-function get_log()
-	local f = io.open("/tmp/vnt-cli.log", "r")
-	luci.http.write(f and f:read("*all") or "暂无日志"); if f then f:close() end
-end
-
-function get_log2()
-	local f = io.open("/tmp/vnts.log", "r")
-	luci.http.write(f and f:read("*all") or "暂无日志"); if f then f:close() end
-end
-
-function clear_log()
-	luci.sys.call("rm -f /tmp/vnt-cli*.log")
-	luci.http.prepare_content("application/json")
-	luci.http.write_json({status = "ok"})
-end
-
-function clear_log2()
-	luci.sys.call("rm -f /tmp/vnts*.log")
-	luci.http.prepare_content("application/json")
-	luci.http.write_json({status = "ok"})
-end
+function restart() sys.call("/etc/init.d/vnt restart >/dev/null 2>&1 &") json({status = "ok"}) end
+function get_log() log_op("g", "c") end
+function get_log2() log_op("g", "s") end
+function clear_log() log_op("c", "c") end
+function clear_log2() log_op("c", "s") end
 
 function vnt_info()
-	local info = luci.sys.exec("$(uci -q get vnt.@vnt-cli[0].clibin) --info 2>&1")
-	if info == "" then info = "错误：程序未运行" end
-	info = info:gsub("Connection status", "连接状态"):gsub("Virtual ip", "虚拟IP")
-	info = info:gsub("Virtual gateway", "虚拟网关"):gsub("Virtual netmask", "虚拟掩码")
-	info = info:gsub("NAT type", "NAT类型"):gsub("Relay server", "服务器")
-	info = info:gsub("Public ips", "外网IP"):gsub("Local addr", "本地地址")
-	luci.http.prepare_content("application/json")
-	luci.http.write_json({html = "<pre>" .. info .. "</pre>"})
+    local info = exec("$(uci -q get vnt.@vnt-cli[0].clibin) --info")
+    if info == "" then info = "错误：程序未运行" end
+    for en, cn in pairs({["Connection status"]="连接状态", ["Virtual ip"]="虚拟IP", ["Virtual gateway"]="虚拟网关",
+        ["Virtual netmask"]="虚拟掩码", ["NAT type"]="NAT类型", ["Relay server"]="服务器", ["Public ips"]="外网IP", ["Local addr"]="本地地址"}) do
+        info = info:gsub(en, cn)
+    end
+    json({html = "<pre>" .. info .. "</pre>"})
 end
 
 function vnt_list()
-	local list = luci.sys.exec("$(uci -q get vnt.@vnt-cli[0].clibin) --list 2>&1")
-	if list == "" or list:match("[Ee]rror") then
-		luci.http.prepare_content("application/json")
-		luci.http.write_json({html = "<div class='empty'>程序未运行或暂无设备</div>"})
-		return
-	end
-	local html = "<table class='dtable'><tr><th>名称</th><th>虚拟IP</th><th>状态</th><th>模式</th><th>延迟</th></tr>"
-	local first = true
-	for line in list:gmatch("[^\r\n]+") do
-		if first then first = false else
-			local cols = {}; for c in line:gmatch("%S+") do table.insert(cols, c) end
-			if #cols >= 5 then
-				local st = cols[3]:lower() == "online" and "on" or "off"
-				local md = cols[4]:lower() == "p2p" and "p2p" or "relay"
-				local rt = tonumber(cols[5]) or 0
-				local rc = rt < 50 and "good" or (rt < 100 and "mid" or "bad")
-				html = html .. string.format("<tr><td><b>%s</b></td><td><code>%s</code></td><td class='st-%s'>● %s</td><td class='md-%s'>%s</td><td class='rt-%s'>%sms</td></tr>",
-					cols[1], cols[2], st, cols[3], md, cols[4]:upper(), rc, cols[5])
-			end
-		end
-	end
-	luci.http.prepare_content("application/json")
-	luci.http.write_json({html = html .. "</table>"})
+    build_table("$(uci -q get vnt.@vnt-cli[0].clibin) --all", {"名称", "虚拟IP", "状态", "模式", "延迟", "NAT", "公网IP"},
+        function(c)
+            if #c < 3 then return nil end
+            if c[3]:lower() == "online" and #c >= 7 then
+                local rt = tonumber(c[5]) or 0
+                return string.format("<tr><td><b>%s</b></td><td><code>%s</code></td><td class='on'>● 在线</td><td>%s</td><td class='%s'>%sms</td><td>%s</td><td>%s</td></tr>",
+                    c[1], c[2], c[4]:upper(), rt < 50 and "on" or (rt < 100 and "warn" or "off"), c[5], c[6], c[7])
+            end
+            return string.format("<tr><td><b>%s</b></td><td><code>%s</code></td><td class='off'>● 离线</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>", c[1], c[2])
+        end, "程序未运行或暂无设备")
 end
 
 function vnt_route()
-	local route = luci.sys.exec("$(uci -q get vnt.@vnt-cli[0].clibin) --route 2>&1")
-	if route == "" then route = "程序未运行" end
-	route = route:gsub("Next Hop", "下一跳"):gsub("Interface", "接口")
-	luci.http.prepare_content("application/json")
-	luci.http.write_json({html = "<pre>" .. route .. "</pre>"})
+    build_table("$(uci -q get vnt.@vnt-cli[0].clibin) --route", {"目标", "下一跳", "跃点", "延迟", "接口"},
+        function(c) return #c >= 5 and string.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%sms</td><td>%s</td></tr>", c[1], c[2], c[3], c[4], c[5]) or nil end)
 end
 
 function vnt_cmd()
-	local cmd = luci.sys.exec("cat /proc/$(pidof vnt-cli 2>/dev/null | awk '{print $1}')/cmdline 2>/dev/null | tr '\\0' ' '")
-	if cmd == "" then cmd = "程序未运行" end
-	luci.http.prepare_content("application/json")
-	luci.http.write_json({html = "<pre>" .. cmd .. "</pre>"})
+    local cmd = exec("cat /proc/$(pidof vnt-cli | awk '{print $1}')/cmdline | tr '\\0' ' '")
+    json({html = "<pre>" .. (cmd ~= "" and cmd or "程序未运行") .. "</pre>"})
+end
+
+local API_BASE = "https://gitlab.com/api/v4/projects/whzhni%2F"
+
+local function pkg_info()
+    if sys.call("command -v opkg >/dev/null 2>&1") == 0 then return "opkg", "ipk", exec("opkg print-architecture | awk '!/all|noarch/{a=$2}END{print a}'") end
+    if sys.call("command -v apk >/dev/null 2>&1") == 0 then return "apk", "apk", exec("apk --print-arch") end
+    return "unknown", "ipk", ""
+end
+
+local function fetch_api(api)
+    local d = exec("wget -qO- --timeout=5 '" .. API_BASE .. api .. "/releases' 2>/dev/null")
+    return (d ~= "") and d or nil
+end
+
+function get_update()
+    local mgr, ext, arch = pkg_info()
+    local api = (http.formvalue("type") or "vnt") == "server" and "vnts" or "vnt"
+    local data = fetch_api(api)
+    if not data then return json({version = "-", mgr = mgr, arch = arch, files = {}, api_name = api}) end
+    local files = {} for f in data:gmatch('"([^"]+%.' .. ext .. ')"') do if not f:match("/") then files[#files+1] = f end end
+    json({version = data:match('"tag_name":"v([^"]+)"') or "-", mgr = mgr, arch = arch, files = files, api_name = api})
+end
+
+function do_install()
+    local file, api = http.formvalue("file"), http.formvalue("api") or "vnt"
+    if not file or file == "" then return json({status = "error", msg = "未指定文件"}) end
+    local data = fetch_api(api)
+    if not data then return json({status = "error", msg = "获取版本失败"}) end
+    local url = data:match('(https://[^"]*/' .. file:gsub("([%.%-%+])", "%%%1") .. ')')
+    if not url then return json({status = "error", msg = "未找到链接"}) end
+    if sys.call("wget -q --timeout=60 '" .. url .. "' -O '/tmp/" .. file .. "'") ~= 0 then return json({status = "error", msg = "下载失败"}) end
+    local cmd = sys.call("command -v opkg >/dev/null 2>&1") == 0 and "opkg install" or "apk add --allow-untrusted"
+    local r = sys.exec(cmd .. " '/tmp/" .. file .. "' 2>&1")
+    sys.call("rm -f '/tmp/" .. file .. "' /tmp/luci-indexcache 2>/dev/null")
+    json({status = "ok", msg = r})
 end
