@@ -5,198 +5,275 @@
 .row{display:flex;gap:15px;margin-bottom:15px;flex-wrap:wrap}
 .col{flex:1;min-width:300px}
 .card{background:var(--card);border-radius:8px;border:1px solid var(--border);overflow:hidden}
-.card-head{background:linear-gradient(135deg,#3a3636,#2d2a2a);color:#fff;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:15px}
+.card-head{background:linear-gradient(135deg,#3a3636,#2d2a2a);color:#fff;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;font-weight:600}
 .card-head .icons{display:flex;gap:10px}
-.card-head .icons span{cursor:pointer;opacity:.85;font-size:18px;transition:all .2s;padding:4px}
-.card-head .icons span:hover{opacity:1;transform:scale(1.15)}
+.card-head .icons span{cursor:pointer;opacity:.85;font-size:18px;padding:4px}
+.card-head .icons span:hover{opacity:1}
 .card-body{padding:15px}
 .info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);color:var(--text)}
 .info-row:last-child{border:none}
-.info-row .label{color:var(--text2)}
-.info-row .value{font-weight:500}
-.st-on{color:var(--green)}.st-off{color:var(--red)}
-.md-p2p{color:var(--green);font-weight:600}.md-relay{color:var(--yellow);font-weight:600}
-.rt-good{color:var(--green)}.rt-mid{color:var(--yellow)}.rt-bad{color:var(--red)}
+.info-row .l{color:var(--text2)}.info-row .v{font-weight:500}
+.on{color:#28a745!important}.off{color:#dc3545!important}.warn{color:#ffc107!important}
 .panel{background:var(--card);border-radius:8px;border:1px solid var(--border);margin-bottom:15px}
-.btn-bar{display:flex;gap:8px;padding:12px 15px;background:#3a3636;border-bottom:1px solid var(--border);align-items:center;flex-wrap:wrap}
-.btn{padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:600;font-size:13px;transition:all .15s;color:#333;
-    background:linear-gradient(180deg,#f0f0f0 0%,#d5d5d5 100%);box-shadow:0 2px 4px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.8)}
-.btn:hover{transform:translateY(-1px);box-shadow:0 3px 6px rgba(0,0,0,.25)}
-.btn:active,.btn.active{transform:translateY(0);background:linear-gradient(180deg,var(--accent) 0%,#357abd 100%);color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,.2)}
-.btn-icon{width:34px;height:34px;padding:0;display:flex;align-items:center;justify-content:center;font-size:16px;margin-left:auto;background:linear-gradient(180deg,#555 0%,#444 100%);color:#fff}
-.btn-icon:hover{background:linear-gradient(180deg,#666 0%,#555 100%)}
-.content-box{min-height:180px;padding:15px;color:var(--text)}
-.dtable{width:100%;border-collapse:collapse}
-.dtable th,.dtable td{padding:10px;text-align:left;border-bottom:1px solid var(--border)}
+.bar{display:flex;gap:8px;padding:12px 15px;background:#3a3636;border-bottom:1px solid var(--border);align-items:center;flex-wrap:wrap}
+.btn{padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:600;font-size:13px;color:#333;background:linear-gradient(180deg,#f0f0f0,#d5d5d5)}
+.btn:hover{transform:translateY(-1px)}
+.btn.active{background:linear-gradient(180deg,var(--accent),#357abd);color:#fff}
+.btn-icon{width:34px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center;margin-left:auto;background:linear-gradient(180deg,#555,#444);color:#fff}
+.box{min-height:180px;padding:15px;color:var(--text);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.dtable{width:100%;border-collapse:collapse;min-width:600px}
+.dtable th,.dtable td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
 .dtable th{background:#3a3636;color:#fff;font-weight:600}
 .dtable tr:hover{background:#4a4545}
 .dtable code{background:#333;padding:2px 6px;border-radius:3px}
 .empty{text-align:center;padding:40px;color:var(--text2)}
-.content-box pre{background:#2d2a2a;color:#d4d4d4;padding:12px;border-radius:5px;overflow-x:auto;margin:0;font-size:13px;white-space:pre-wrap;word-break:break-all}
-.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center}
-.modal.show{display:flex}
-.modal-box{background:#3a3636;border-radius:10px;width:92%;max-width:700px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.5);border:1px solid #555}
-.modal-box.large{max-width:900px;max-height:90vh}
-.modal-head{padding:14px 18px;background:linear-gradient(135deg,var(--accent),#357abd);color:#fff;display:flex;justify-content:space-between;align-items:center;border-radius:10px 10px 0 0}
-.modal-head h3{margin:0;font-size:16px}
-.modal-head .icons{display:flex;gap:12px;align-items:center}
-.modal-head .icons span{cursor:pointer;font-size:18px;opacity:.9}
-.modal-head .icons span:hover{opacity:1}
-.modal-close{font-size:22px;cursor:pointer;opacity:.9}
-.modal-close:hover{opacity:1}
-.modal-body{flex:1;overflow:auto}
-.modal-body.log{padding:15px}
-.modal-body.log pre{background:#1e1e1e;color:#d4d4d4;padding:15px;border-radius:6px;margin:0;max-height:55vh;overflow:auto;font-size:13px;white-space:pre-wrap;word-break:break-all}
-.modal-body iframe{width:100%;height:100%;border:none;min-height:65vh}
-.modal-foot{padding:12px 18px;border-top:1px solid #555;display:flex;justify-content:flex-end;gap:10px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999}
+.modal.show{display:block}
+.mbox{background:#fff;border-radius:8px;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.5);position:absolute;overflow:hidden;width:700px;height:550px;max-width:95vw;max-height:85vh}
+.mhead{padding:14px 18px;background:var(--accent);color:#fff;display:flex;justify-content:space-between;align-items:center;cursor:move;user-select:none;font-weight:600}
+.mhead h3{margin:0;font-size:16px}
+.mhead .icons span{cursor:pointer;font-size:18px;margin-left:12px}
+.mbody{flex:1;overflow:auto;background:#fff;color:#333;padding:15px}
+.mbody.frame{padding:0}
+.mbody iframe{width:100%;height:100%;border:none}
+.mbody pre{background:#f5f5f5;color:#333;padding:15px;border-radius:6px;border:1px solid #ddd;margin:0;height:100%;overflow:auto;font-size:13px;white-space:pre-wrap;word-break:break-all}
+.mfoot{padding:12px 18px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:flex-end}
+.mresize{position:absolute;right:0;bottom:0;width:30px;height:30px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,rgba(0,0,0,.1) 50%)}
 .about{background:var(--card);border-radius:8px;border:1px solid var(--border);padding:12px 15px;text-align:center;color:var(--text2)}
 .about a{color:var(--accent)}
-.toast{position:fixed;top:20px;right:20px;background:#333;color:#fff;padding:12px 20px;border-radius:6px;z-index:10000;display:none;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.toast{position:fixed;top:20px;right:20px;background:#333;color:#fff;padding:12px 20px;border-radius:6px;z-index:10000;display:none}
 .toast.show{display:block;animation:fadeIn .3s}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.link{cursor:pointer;color:var(--accent);text-decoration:underline}
+.pkg{padding:12px;margin:6px 0;background:#f5f5f5;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-family:monospace;color:#333}
+.pkg:hover{background:#e8f4fc;border-color:var(--accent)}
+.uinfo{padding:15px;background:#f9f9f9;border-radius:6px;margin-bottom:15px;line-height:1.8;color:#333}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;animation:spin 1s linear infinite}
+@media(max-width:768px){.mbox{width:95vw;height:80vh}.dtable{min-width:500px}}
 </style>
 
 <div class="vnt-wrap">
-    <div class="row">
-        <div class="col">
-            <div class="card">
-                <div class="card-head">
-                    <span>📡 vnt-cli 状态</span>
-                    <div class="icons">
-                        <span title="日志" onclick="showLog('client')">📝</span>
-                        <span title="重启" onclick="restartService('client')">🔄</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="info-row"><span class="label">状态</span><span class="value" id="c_st">-</span></div>
-                    <div class="info-row"><span class="label">已运行</span><span class="value" id="c_time">-</span></div>
-                    <div class="info-row"><span class="label">资源</span><span class="value" id="c_res">-</span></div>
-                    <div class="info-row"><span class="label">版本</span><span class="value" id="c_ver">-</span></div>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card">
-                <div class="card-head">
-                    <span>🖥️ vnts 状态</span>
-                    <div class="icons">
-                        <span title="日志" onclick="showLog('server')">📝</span>
-                        <span title="Web管理" id="web_btn" style="display:none" onclick="openWeb()">🏠</span>
-                        <span title="重启" onclick="restartService('server')">🔄</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="info-row"><span class="label">状态</span><span class="value" id="s_st">-</span></div>
-                    <div class="info-row"><span class="label">已运行</span><span class="value" id="s_time">-</span></div>
-                    <div class="info-row"><span class="label">资源</span><span class="value" id="s_res">-</span></div>
-                    <div class="info-row"><span class="label">版本</span><span class="value" id="s_ver">-</span></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <div class="row" id="status_cards"></div>
     <div class="panel">
-        <div class="btn-bar">
-            <button class="btn active" data-tab="list" onclick="switchTab('list')">设备列表</button>
-            <button class="btn" data-tab="info" onclick="switchTab('info')">连接信息</button>
-            <button class="btn" data-tab="route" onclick="switchTab('route')">路由表</button>
-            <button class="btn" data-tab="cmd" onclick="switchTab('cmd')">启动参数</button>
-            <button class="btn btn-icon" title="刷新" onclick="refreshTab()">🔄</button>
-        </div>
-        <div class="content-box" id="tab_content"><div class="empty">加载中...</div></div>
+        <div class="bar" id="tab_bar"></div>
+        <div class="box" id="tab_content"></div>
     </div>
-
-    <div class="row">
-        <div class="col">
-            <div class="card">
-                <div class="card-head">
-                    <span>📡 客户端设置</span>
-                    <div class="icons"><span title="设置" onclick="showSettings('client')">⚙️</span></div>
-                </div>
-                <div class="card-body">
-                    <div class="info-row"><span class="label">Token</span><span class="value" id="c_token">-</span></div>
-                    <div class="info-row"><span class="label">接口模式</span><span class="value" id="c_mode">-</span></div>
-                    <div class="info-row"><span class="label">虚拟IP</span><span class="value" id="c_ip">-</span></div>
-                    <div class="info-row"><span class="label">服务器</span><span class="value" id="c_server">-</span></div>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card">
-                <div class="card-head">
-                    <span>🖥️ 服务端设置</span>
-                    <div class="icons"><span title="设置" onclick="showSettings('server')">⚙️</span></div>
-                </div>
-                <div class="card-body">
-                    <div class="info-row"><span class="label">监听端口</span><span class="value" id="s_port">-</span></div>
-                    <div class="info-row"><span class="label">Token白名单</span><span class="value" id="s_white">-</span></div>
-                    <div class="info-row"><span class="label">DHCP网关</span><span class="value" id="s_subnet">-</span></div>
-                    <div class="info-row"><span class="label">子网掩码</span><span class="value" id="s_mask">-</span></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="about">ℹ️ <b>VNT</b> - 简便高效的异地组网工具 | <a href="http://rustvnt.com" target="_blank">官网</a> | <a href="https://github.com/vnt-dev/vnt" target="_blank">GitHub</a> | <a href="https://github.com/vnt-dev/VntApp" target="_blank">VntApp</a></div>
+    <div class="row" id="config_cards"></div>
+    <div class="about">ℹ️ <b>VNT</b> - 简便高效的异地组网工具 | <a href="http://rustvnt.com" target="_blank">官网</a> | <a href="https://github.com/vnt-dev/vnt" target="_blank">GitHub</a> | <a href="https://github.com/vnt-dev/VntApp" target="_blank">GUIApp</a></div>
 </div>
 
-<div class="modal" id="modal_log">
-    <div class="modal-box">
-        <div class="modal-head"><h3 id="log_title">日志</h3><div class="icons"><span onclick="refreshLog()">🔄</span><span class="modal-close" onclick="closeModal('log')">✕</span></div></div>
-        <div class="modal-body log"><pre id="log_content">加载中...</pre></div>
-        <div class="modal-foot"><button class="btn" onclick="clearLog()">清除日志</button></div>
-    </div>
-</div>
-
-<div class="modal" id="modal_settings">
-    <div class="modal-box large">
-        <div class="modal-head"><h3 id="settings_title">设置</h3><span class="modal-close" onclick="closeModal('settings')">✕</span></div>
-        <div class="modal-body"><iframe id="settings_iframe"></iframe></div>
-    </div>
-</div>
-
+<div class="modal" id="modal"><div class="mbox"><div class="mhead"><h3 id="m_title"></h3><div class="icons" id="m_icons"></div></div><div class="mbody" id="m_body"></div><div class="mfoot" id="m_foot"></div><div class="mresize"></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
-var currentTab='list',currentLog='client',webPort=29870;
-var tabApis={list:'vnt_list',info:'vnt_info',route:'vnt_route',cmd:'vnt_cmd'};
-function $(id){return document.getElementById(id)}
-function ajax(url,cb,data){var x=new XMLHttpRequest();x.open(data?'POST':'GET',url,true);if(data)x.setRequestHeader('Content-Type','application/x-www-form-urlencoded');x.onload=function(){cb(x.status==200?x.responseText:null)};x.send(data)}
-function showToast(msg){var t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},3000)}
+(function(){
+var $=function(id){return document.getElementById(id)},
+    L='<span class="spin">🔄</span> 加载中...',
+    curTab='list',curModal='',webPort=29870,
+    ver={c:{l:'-',r:'-'},s:{l:'-',r:'-'}},
+    tabs={list:'vnt_list',info:'vnt_info',route:'vnt_route',cmd:'vnt_cmd'},
+    cfg={c:{icon:'📡',name:'vnt-cli',type:'client'},s:{icon:'🖥️',name:'vnts',type:'server'}};
 
-function refreshStatus(){
-    ajax('<%=url("admin/vpn/vnt/status")%>',function(r){
+function ajax(u,d,cb){var x=new XMLHttpRequest();x.open(d?'POST':'GET',u);if(d)x.setRequestHeader('Content-Type','application/x-www-form-urlencoded');x.onload=function(){cb&&cb(x.status==200?x.responseText:null)};x.send(d)}
+function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},3000)}
+function spin(e,on){e&&e.classList.toggle('spin',on)}
+function row(l,v,id,cls){return '<div class="info-row"><span class="l">'+l+'</span><span class="v'+(cls?' '+cls:'')+'"'+(id?' id="'+id+'"':'')+'>'+v+'</span></div>'}
+
+function initCards(){
+    var h='';
+    ['c','s'].forEach(function(k){
+        var c=cfg[k];
+        h+='<div class="col"><div class="card"><div class="card-head"><span>'+c.icon+' '+c.name+' 状态</span><div class="icons">';
+        h+='<span title="日志" onclick="showLog(\''+c.type+'\')">📝</span>';
+        if(k=='s')h+='<span title="Web管理" id="web_btn" style="display:none" onclick="openWeb()">🏠</span>';
+        h+='<span title="重启" onclick="restart(\''+c.type+'\',this)">🔄</span></div></div><div class="card-body">';
+        h+=row('状态','-',k+'_st');
+        h+=row('已运行','-',k+'_time');
+        h+=row('资源','-',k+'_res');
+        h+='<div class="info-row"><span class="l">版本</span><span class="v"><span id="'+k+'_ver" class="link" onclick="showUpdate(\''+c.type+'\')">-</span></span></div>';
+        h+='</div></div></div>';
+    });
+    $('status_cards').innerHTML=h;
+    
+    h='';
+    [{k:'c',t:'Token',m:'接口模式',i:'虚拟IP',x:'服务器'},{k:'s',t:'监听端口',m:'Token白名单',i:'DHCP网关',x:'子网掩码'}].forEach(function(o){
+        var c=cfg[o.k];
+        h+='<div class="col"><div class="card"><div class="card-head"><span>'+c.icon+' '+(o.k=='c'?'客户端':'服务端')+'设置</span><div class="icons"><span title="设置" onclick="showSettings(\''+c.type+'\',this)">⚙️</span></div></div><div class="card-body">';
+        h+=row(o.t,'-',o.k+'_a');h+=row(o.m,'-',o.k+'_b');h+=row(o.i,'-',o.k+'_c');h+=row(o.x,'-',o.k+'_d');
+        h+='</div></div></div>';
+    });
+    $('config_cards').innerHTML=h;
+    
+    h='';['设备列表','连接信息','路由表','启动参数'].forEach(function(n,i){
+        var t=['list','info','route','cmd'][i];
+        h+='<button class="btn'+(i==0?' active':'')+'" data-tab="'+t+'" onclick="switchTab(\''+t+'\')">'+n+'</button>';
+    });
+    h+='<button class="btn btn-icon" onclick="refreshTab(this.querySelector(\'span\'))"><span>🔄</span></button>';
+    $('tab_bar').innerHTML=h;
+}
+
+function status(){
+    ajax('<%=url("admin/vpn/vnt/status")%>',0,function(r){
         if(!r)return;var d=JSON.parse(r);
-        $('c_st').innerHTML=d.crunning?'<span class="st-on">● 运行中</span>':'<span class="st-off">● 已停止</span>';
-        $('c_time').textContent=d.crunning?d.vntsta:'-';
-        $('c_res').textContent=d.crunning?'CPU: '+d.vntcpu+' / 内存: '+d.vntram:'-';
-        $('c_ver').textContent=d.vnttag||'-';
-        $('s_st').innerHTML=d.srunning?'<span class="st-on">● 运行中</span>':'<span class="st-off">● 已停止</span>';
-        $('s_time').textContent=d.srunning?d.vntsta2:'-';
-        $('s_res').textContent=d.srunning?'CPU: '+d.vntscpu+' / 内存: '+d.vntsram:'-';
-        $('s_ver').textContent=d.vntstag||'-';
-        $('c_token').innerHTML=d.token_set?'<span class="st-on">✓ 已设置</span>':'<span class="st-off">✗ 未设置</span>';
-        $('c_mode').textContent=d.mode=='static'?'手动指定':'动态分配';
-        $('c_ip').textContent=d.ipaddr||'-';
-        $('c_server').textContent=d.vntshost||'-';
-        $('s_port').textContent=d.server_port;
-        $('s_white').innerHTML=d.white_set?'<span class="st-on">✓ 已设置</span>':'<span class="st-off">✗ 未设置</span>';
-        $('s_subnet').textContent=d.subnet;
-        $('s_mask').textContent=d.netmask;
+        ['c','s'].forEach(function(k){
+            var run=k=='c'?d.crunning:d.srunning;
+            $(k+'_st').innerHTML=run?'<span class="on">● 运行中</span>':'<span class="off">● 已停止</span>';
+            $(k+'_time').textContent=run?(k=='c'?d.vntsta:d.vntsta2):'-';
+            $(k+'_res').textContent=run?'CPU:'+(k=='c'?d.vntcpu:d.vntscpu)+' / 内存:'+(k=='c'?d.vntram:d.vntsram):'-';
+            ver[k].l=(k=='c'?d.vnttag:d.vntstag)||'-';
+            $(k+'_ver').textContent=ver[k].l+(ver[k].r!='-'?'/'+ver[k].r:'');
+        });
+        $('c_a').innerHTML=d.token_set?'<span class="on">✓ 已设置</span>':'<span class="off">✗ 未设置</span>';
+        $('c_b').textContent=d.mode=='static'?'手动指定':'动态分配';
+        $('c_c').textContent=d.ipaddr||'-';
+        $('c_d').textContent=d.vntshost||'-';
+        $('s_a').textContent=d.server_port;
+        $('s_b').innerHTML=d.white_set?'<span class="on">✓ 已设置</span>':'<span class="off">✗ 未设置</span>';
+        $('s_c').textContent=d.subnet;
+        $('s_d').textContent=d.netmask;
         $('web_btn').style.display=d.web==1?'inline':'none';
         webPort=d.port;
     });
 }
 
-function switchTab(tab){currentTab=tab;document.querySelectorAll('.btn-bar .btn[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab==tab)});refreshTab()}
-function refreshTab(){$('tab_content').innerHTML='<div class="empty">加载中...</div>';ajax('<%=url("admin/vpn/vnt")%>/'+tabApis[currentTab],function(r){$('tab_content').innerHTML=r?JSON.parse(r).html:'<div class="empty">加载失败</div>'})}
-function showLog(type){currentLog=type;$('log_title').textContent=(type=='client'?'vnt-cli':'vnts')+' 日志';$('modal_log').classList.add('show');refreshLog()}
-function refreshLog(){ajax('<%=url("admin/vpn/vnt")%>/'+(currentLog=='client'?'get_log':'get_log2'),function(r){$('log_content').textContent=r||'暂无日志';$('log_content').scrollTop=$('log_content').scrollHeight})}
-function clearLog(){ajax('<%=url("admin/vpn/vnt")%>/'+(currentLog=='client'?'clear_log':'clear_log2'),function(){refreshLog();showToast('日志已清除')})}
-function showSettings(type){$('settings_title').textContent=(type=='client'?'vnt-cli':'vnts')+' 设置';$('settings_iframe').src='<%=url("admin/vpn/vnt")%>/popup_'+type;$('modal_settings').classList.add('show')}
-function closeModal(name){$('modal_'+name).classList.remove('show');if(name=='settings'){$('settings_iframe').src='';refreshStatus()}}
-function restartService(type){showToast((type=='client'?'vnt-cli':'vnts')+' 正在重启...');ajax('<%=url("admin/vpn/vnt")%>/restart_'+(type=='client'?'client':'server'),function(){setTimeout(refreshStatus,2000)})}
-function openWeb(){window.open('http://'+location.hostname+':'+webPort,'_blank')}
-refreshStatus();switchTab('list');setInterval(refreshStatus,5000);
+function fetchVer(){
+    ['vnt','vnts'].forEach(function(n,i){
+        var k=i==0?'c':'s';
+        ajax('https://gitlab.com/api/v4/projects/whzhni%2F'+n+'/releases',0,function(r){
+            if(!r)return;var m=r.match(/"tag_name":"v([^"]+)"/);
+            ver[k].r=m?m[1]:'-';
+            $(k+'_ver').textContent=ver[k].l+(ver[k].r!='-'?'/'+ver[k].r:'');
+        });
+    });
+}
+
+function modal(title,body,foot,icons){
+    $('m_title').textContent=title;
+    $('m_body').className='mbody'+(body.iframe?' frame':'');
+    $('m_body').innerHTML=body.iframe?'<iframe src="'+body.iframe+'"></iframe>':(body.html||'');
+    $('m_foot').innerHTML=foot||'';
+    $('m_icons').innerHTML=(icons||'')+'<span onclick="closeModal()">✕</span>';
+    var m=$('modal'),b=m.querySelector('.mbox');
+    m.classList.add('show');
+    b.style.left=(innerWidth-b.offsetWidth)/2+'px';
+    b.style.top=(innerHeight-b.offsetHeight)/2+'px';
+    initDrag(b);initResize(b);
+}
+
+function closeModal(){
+    $('modal').classList.remove('show');
+    $('m_body').innerHTML='';
+    if(curModal=='settings')status();
+    curModal='';
+}
+window.closeModal=closeModal;
+
+function initDrag(b){
+    var h=b.querySelector('.mhead'),dragging=false,ox,oy,bx,by;
+    function start(e){
+        if(e.target.tagName=='SPAN')return;
+        e.preventDefault();
+        dragging=true;
+        var p=e.touches?e.touches[0]:e;
+        ox=p.clientX;oy=p.clientY;bx=b.offsetLeft;by=b.offsetTop;
+        document.body.style.overflow='hidden';
+    }
+    function move(e){
+        if(!dragging)return;
+        e.preventDefault();
+        var p=e.touches?e.touches[0]:e;
+        b.style.left=Math.max(100-b.offsetWidth,Math.min(innerWidth-100,bx+p.clientX-ox))+'px';
+        b.style.top=Math.max(0,Math.min(innerHeight-50,by+p.clientY-oy))+'px';
+    }
+    function end(){
+        dragging=false;
+        document.body.style.overflow='';
+    }
+    h.onmousedown=start;h.ontouchstart=start;
+    document.addEventListener('mousemove',move);
+    document.addEventListener('touchmove',move,{passive:false});
+    document.addEventListener('mouseup',end);
+    document.addEventListener('touchend',end);
+}
+
+function initResize(b){
+    var r=b.querySelector('.mresize'),resizing=false,ow,oh,ox,oy;
+    function start(e){
+        e.preventDefault();e.stopPropagation();
+        resizing=true;
+        var p=e.touches?e.touches[0]:e;
+        ow=b.offsetWidth;oh=b.offsetHeight;ox=p.clientX;oy=p.clientY;
+    }
+    function move(e){
+        if(!resizing)return;
+        e.preventDefault();
+        var p=e.touches?e.touches[0]:e;
+        b.style.width=Math.max(320,ow+p.clientX-ox)+'px';
+        b.style.height=Math.max(200,oh+p.clientY-oy)+'px';
+    }
+    function end(){resizing=false}
+    r.onmousedown=start;r.ontouchstart=start;
+    document.addEventListener('mousemove',move);
+    document.addEventListener('touchmove',move,{passive:false});
+    document.addEventListener('mouseup',end);
+    document.addEventListener('touchend',end);
+}
+
+window.switchTab=function(t){curTab=t;document.querySelectorAll('.btn[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab==t)});refreshTab()};
+window.refreshTab=function(e){spin(e,1);$('tab_content').innerHTML='<div class="empty">'+L+'</div>';ajax('<%=url("admin/vpn/vnt")%>/'+tabs[curTab],0,function(r){$('tab_content').innerHTML=r?JSON.parse(r).html:'<div class="empty">加载失败</div>';spin(e,0)})};
+
+window.showLog=function(t){
+    curModal=t;var k=t=='client'?'c':'s';
+    modal(cfg[k].name+' 日志',{html:'<pre id="log_pre">'+L+'</pre>'},'<button class="btn" onclick="clearLog()">清除日志</button>','<span onclick="refreshLog(this)">🔄</span>');
+    refreshLog();
+};
+window.refreshLog=function(e){
+    spin(e,1);
+    ajax('<%=url("admin/vpn/vnt")%>/'+(curModal=='client'?'get_log':'get_log2'),0,function(r){
+        var p=$('log_pre');if(p){p.textContent=r||'暂无日志';p.scrollTop=9e9}spin(e,0);
+    });
+};
+window.clearLog=function(){ajax('<%=url("admin/vpn/vnt")%>/'+(curModal=='client'?'clear_log':'clear_log2'),0,function(){refreshLog();toast('日志已清除')})};
+
+window.showSettings=function(t,e){
+    spin(e,1);curModal='settings';var k=t=='client'?'c':'s';
+    modal(cfg[k].name+' 设置',{iframe:'<%=url("admin/vpn/vnt")%>/popup_'+(t=='client'?'client':'server')});
+    $('m_body').querySelector('iframe').onload=function(){spin(e,0)};
+};
+
+window.restart=function(t,e){
+    spin(e,1);var k=t=='client'?'c':'s';
+    toast(cfg[k].name+' 正在重启...');
+    ajax('<%=url("admin/vpn/vnt/restart")%>','type='+t,function(){setTimeout(function(){status();spin(e,0)},2000)});
+};
+
+window.showUpdate=function(t){
+    curModal='update';var k=t=='client'?'c':'s',name=t=='client'?'vnt':'vnts';
+    modal(cfg[k].name+' 更新',{html:'<div class="uinfo" id="u_info">'+L+'</div><div id="u_list"></div>'});
+    ajax('<%=url("admin/vpn/vnt/get_update")%>','type='+t,function(r){
+        if(!r){$('u_info').textContent='获取失败';return}
+        var d=JSON.parse(r);
+        $('u_info').innerHTML='<b>最新版本:</b> v'+d.version+'<br><b>包管理器:</b> '+d.mgr+'<br><b>系统架构:</b> '+d.arch;
+        if(!d.files||!d.files.length){$('u_list').innerHTML='<div class="empty">未找到安装包</div>';return}
+        var h='';d.files.forEach(function(f){h+='<div class="pkg" onclick="installPkg(\''+t+'\',\''+f+'\')">'+f+'</div>'});
+        $('u_list').innerHTML=h;
+    });
+};
+
+window.installPkg=function(t,f){
+    if(!confirm('确定安装 '+f+' ?'))return;
+    $('u_list').innerHTML = '<div style="text-align:center; padding:40px; color: #333">' + L.replace('加载中','下载安装中') + '</div>';
+    ajax('<%=url("admin/vpn/vnt/do_install")%>','type='+t+'&file='+encodeURIComponent(f),function(r){
+        var d=r?JSON.parse(r):{status:'error',msg:'请求失败'};
+        $('u_list').innerHTML='<div class="empty" style="color:'+(d.status=='ok'?'#28a745':'#dc3545')+'">'+(d.status=='ok'?'✓ 安装完成<pre>'+d.msg+'</pre>':'✗ '+d.msg)+'</div>';
+        if(d.status=='ok')setTimeout(status,2000);
+    });
+};
+
+window.openWeb=function(){window.open('http://'+location.hostname+':'+webPort)};
+
+initCards();status();fetchVer();switchTab('list');setInterval(status,5000);
+})();
 </script>
 <%+footer%>
