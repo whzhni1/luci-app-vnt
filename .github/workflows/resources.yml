@@ -1,0 +1,31 @@
+name: Dump ImmortalWrt Bootstrap Theme Structure
+
+on:
+  workflow_dispatch:
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout empty repo
+        uses: actions/checkout@v4
+
+      - name: Clone ImmortalWrt luci repo (depth=1)
+        run: |
+          git clone --depth 1 https://github.com/immortalwrt/luci.git
+
+      - name: Enter bootstrap theme directory
+        run: |
+          cd luci/themes/luci-theme-bootstrap
+          echo "=== Directory Structure ==="
+          find . -type f | sed 's#^\./##' | sort > /tmp/files.txt
+          cat /tmp/files.txt
+
+      - name: Generate raw URLs
+        run: |
+          RAW_BASE="https://raw.githubusercontent.com/immortalwrt/luci/master/themes/luci-theme-bootstrap"
+          echo "=== Raw URLs ==="
+          while read -r path; do
+            echo "$RAW_BASE/$path"
+          done < /tmp/files.txt
