@@ -1,4 +1,4 @@
-name: Dump ImmortalWrt Bootstrap Theme Structure
+name: Dump neuros theme structure
 
 on:
   workflow_dispatch:
@@ -11,21 +11,41 @@ jobs:
       - name: Checkout empty repo
         uses: actions/checkout@v4
 
-      - name: Clone ImmortalWrt luci repo (depth=1)
+      - name: Clone ImmortalWrt luci repo
         run: |
           git clone --depth 1 https://github.com/immortalwrt/luci.git
 
-      - name: Enter bootstrap theme directory
+      - name: Collect bootstrap theme file list
         run: |
           cd luci/themes/luci-theme-bootstrap
-          echo "=== Directory Structure ==="
-          find . -type f | sed 's#^\./##' | sort > /tmp/files.txt
-          cat /tmp/files.txt
+          find . -type f | sed 's#^\./##' | sort > /tmp/bootstrap_files.txt
 
-      - name: Generate raw URLs
+      - name: Print neuros theme structure
+        run: |
+          echo "neuros/"
+          echo "├── Makefile (可选，用于编译，如果是直接上传请忽略)"
+          echo "├── root/"
+          echo "│   └── etc/"
+          echo "│       └── uci-defaults/"
+          echo "│           └── 30_luci-theme-neuros"
+          echo "└── htdocs/"
+          echo "    └── luci-static/"
+          echo "        └── neuros/"
+          echo "            ├── cascade.css"
+          echo "            ├── fonts/ (预留字体目录)"
+          echo "            └── icon.png (可选图标)"
+          echo "└── ucode/"
+          echo "    └── template/"
+          echo "        └── themes/"
+          echo "            └── neuros/"
+          echo "                ├── header.ut"
+          echo "                ├── footer.ut"
+          echo "                └── sysauth.ut"
+
+      - name: Print raw URLs (bootstrap original)
         run: |
           RAW_BASE="https://raw.githubusercontent.com/immortalwrt/luci/master/themes/luci-theme-bootstrap"
           echo "=== Raw URLs ==="
           while read -r path; do
             echo "$RAW_BASE/$path"
-          done < /tmp/files.txt
+          done < /tmp/bootstrap_files.txt
