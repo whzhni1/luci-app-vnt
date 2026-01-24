@@ -29,3 +29,9 @@ jobs:
           find . -type f | sed 's|^\./||' | sort | while read f; do
             echo "$BASE/$f"
           done
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: luci-theme-bootstrap
+          path: repo/themes/luci-theme-bootstrap
