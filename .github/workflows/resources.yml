@@ -1,51 +1,163 @@
-name: Dump neuros theme structure
+name: List Files from Remote Repo
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # 手动触发
+  push:
+    branches: [main]
+
+env:
+  REPO_OWNER: immortalwrt
+  REPO_NAME: luci
+  BRANCH: master
+  TARGET_PATH: themes/luci-theme-bootstrap
 
 jobs:
-  dump:
+  list-files:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout empty repo
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Clone ImmortalWrt luci repo
+      - name: Fetch and List All Files
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          git clone --depth 1 https://github.com/immortalwrt/luci.git
+          echo "======================================"
+          echo "📁 目标仓库: $REPO_OWNER/$REPO_NAME"
+          echo "📂 目标路径: $TARGET_PATH"
+          echo "🌿 分支: $BRANCH"
+          echo "======================================"
+          
+          # 递归获取所有文件的函数
+          fetch_contents() {
+            local path="$1"
+            local indent="$2"
+            
+            # 调用 GitHub API
+            response=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/contents/$path?ref=$BRANCH")
+            
+            # 检查是否有错误
+            if echo "$response" | jq -e '.message' > /dev/null 2>&1; then
+              echo "Error: $(echo "$response" | jq -r '.message')"
+              return 1
+            fi
+            
+            # 遍历每个项目
+            echo "$response" | jq -c '.[]' | while read -r item; do
+              name=$(echo "$item" | jq -r '.name')
+              type=$(echo "$item" | jq -r '.type')
+              item_path=$(echo "$item" | jq -r '.path')
+              size=$(echo "$item" | jq -r '.size')
+              download_url=$(echo "$item" | jq -r '.download_url')
+              
+              if [ "$type" = "file" ]; then
+                echo "${indent}📄 $name (${size} bytes)"
+                echo "${indent}   └─ Raw: $download_url"
+                echo "$item_path|$download_url" >> /tmp/all_files.txt
+              elif [ "$type" = "dir" ]; then
+                echo "${indent}📁 $name/"
+                # 递归处理子目录
+                fetch_contents "$item_path" "${indent}   "
+              fi
+            done
+          }
+          
+          echo ""
+          echo "📋 目录结构与原始链接:"
+          echo "--------------------------------------"
+          
+          # 初始化文件列表
+          > /tmp/all_files.txt
+          
+          # 开始递归获取
+          fetch_contents "$TARGET_PATH" ""
+          
+          echo ""
+          echo "======================================"
+          echo "📊 文件汇总表格"
+          echo "======================================"
+          
+          if [ -f /tmp/all_files.txt ] && [ -s /tmp/all_files.txt ]; then
+            echo ""
+            echo "| 文件路径 | 原始链接 |"
+            echo "|----------|----------|"
+            while IFS='|' read -r filepath rawurl; do
+              # 提取相对路径
+              relative_path="${filepath#$TARGET_PATH/}"
+              echo "| \`$relative_path\` | [下载]($rawurl) |"
+            done < /tmp/all_files.txt
+            
+            echo ""
+            echo "--------------------------------------"
+            echo "📈 总计: $(wc -l < /tmp/all_files.txt) 个文件"
+          fi
 
-      - name: Collect bootstrap theme file list
+      - name: Generate JSON Output
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          cd luci/themes/luci-theme-bootstrap
-          find . -type f | sed 's#^\./##' | sort > /tmp/bootstrap_files.txt
+          echo ""
+          echo "======================================"
+          echo "📦 JSON 格式输出"
+          echo "======================================"
+          
+          # 使用 GitHub API 获取树结构（更高效的方式）
+          # 首先获取最新 commit SHA
+          COMMIT_SHA=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/commits/$BRANCH" \
+            | jq -r '.sha')
+          
+          echo "📌 Commit SHA: $COMMIT_SHA"
+          
+          # 获取整个树结构
+          TREE_SHA=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/git/trees/$COMMIT_SHA?recursive=1" \
+            | jq -r --arg path "$TARGET_PATH" '
+              .tree 
+              | map(select(.path | startswith($path))) 
+              | map({
+                  path: .path,
+                  type: .type,
+                  size: .size,
+                  raw_url: (if .type == "blob" then "https://raw.githubusercontent.com/'"$REPO_OWNER"'/'"$REPO_NAME"'/'"$BRANCH"'/" + .path else null end)
+                })
+            ')
+          
+          echo "$TREE_SHA" | jq '.'
 
-      - name: Print neuros theme structure
+      - name: Save File List as Artifact
         run: |
-          echo "neuros/"
-          echo "├── Makefile (可选，用于编译，如果是直接上传请忽略)"
-          echo "├── root/"
-          echo "│   └── etc/"
-          echo "│       └── uci-defaults/"
-          echo "│           └── 30_luci-theme-neuros"
-          echo "└── htdocs/"
-          echo "    └── luci-static/"
-          echo "        └── neuros/"
-          echo "            ├── cascade.css"
-          echo "            ├── fonts/ (预留字体目录)"
-          echo "            └── icon.png (可选图标)"
-          echo "└── ucode/"
-          echo "    └── template/"
-          echo "        └── themes/"
-          echo "            └── neuros/"
-          echo "                ├── header.ut"
-          echo "                ├── footer.ut"
-          echo "                └── sysauth.ut"
+          mkdir -p output
+          
+          # 创建文件列表
+          if [ -f /tmp/all_files.txt ]; then
+            cp /tmp/all_files.txt output/file_list.txt
+          fi
+          
+          # 创建一个便于下载的 shell 脚本
+          echo "#!/bin/bash" > output/download_all.sh
+          echo "# 下载所有文件的脚本" >> output/download_all.sh
+          echo "mkdir -p luci-theme-bootstrap" >> output/download_all.sh
+          
+          if [ -f /tmp/all_files.txt ]; then
+            while IFS='|' read -r filepath rawurl; do
+              relative_path="${filepath#$TARGET_PATH/}"
+              dir_path=$(dirname "$relative_path")
+              echo "mkdir -p \"luci-theme-bootstrap/$dir_path\" 2>/dev/null" >> output/download_all.sh
+              echo "curl -sL \"$rawurl\" -o \"luci-theme-bootstrap/$relative_path\"" >> output/download_all.sh
+            done < /tmp/all_files.txt
+          fi
+          
+          chmod +x output/download_all.sh
+          
+          echo "📥 下载脚本已生成: output/download_all.sh"
 
-      - name: Print raw URLs (bootstrap original)
-        run: |
-          RAW_BASE="https://raw.githubusercontent.com/immortalwrt/luci/master/themes/luci-theme-bootstrap"
-          echo "=== Raw URLs ==="
-          while read -r path; do
-            echo "$RAW_BASE/$path"
-          done < /tmp/bootstrap_files.txt
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: file-list-and-scripts
+          path: output/
+          retention-days: 7
