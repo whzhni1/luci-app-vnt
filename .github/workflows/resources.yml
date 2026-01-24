@@ -6,7 +6,6 @@ on:
 env:
   REPO: https://github.com/immortalwrt/luci.git
   BRANCH: master
-  PATH_PREFIX: themes/luci-theme-bootstrap
 
 jobs:
   list:
@@ -14,16 +13,18 @@ jobs:
     steps:
       - name: Clone and List Files
         run: |
-          # 稀疏克隆指定目录
+          # 稀疏克隆
           git clone --depth 1 --filter=blob:none --sparse $REPO repo
           cd repo
-          git sparse-checkout set $PATH_PREFIX
+          
+          # 匹配所有 bootstrap 相关主题
+          git sparse-checkout set themes/luci-theme-bootstrap themes/luci-theme-bootstrap-light themes/luci-theme-bootstrap-dark
           
           echo "========== 📁 文件结构 =========="
-          find $PATH_PREFIX -type f | sort
+          find themes -type f | sort
           
           echo ""
           echo "========== 🔗 原始链接 =========="
-          for file in $(find $PATH_PREFIX -type f | sort); do
+          for file in $(find themes -type f | sort); do
             echo "https://raw.githubusercontent.com/immortalwrt/luci/$BRANCH/$file"
           done
