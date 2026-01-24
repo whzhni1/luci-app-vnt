@@ -7,12 +7,20 @@ jobs:
   list:
     runs-on: ubuntu-latest
     steps:
-      - name: Clone and List Files
+      - name: Clone and List
         run: |
           git clone --depth 1 https://github.com/immortalwrt/luci.git repo
           cd repo/themes/luci-theme-bootstrap
           
-          echo "========== 📁 文件结构 =========="
+          echo "========== 🌲 目录结构 =========="
+          tree -a
+          
+          echo ""
+          echo "========== 📁 所有目录 =========="
+          find . -type d | sed 's|^\./||' | grep -v '^\.$' | sort
+          
+          echo ""
+          echo "========== 📄 所有文件 =========="
           find . -type f | sed 's|^\./||' | sort
           
           echo ""
