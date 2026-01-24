@@ -30,8 +30,14 @@ jobs:
             echo "$BASE/$f"
           done
 
+      - name: Pack and Upload
+        run: |
+          cd repo/themes
+          tar -cvhf luci-theme-bootstrap.tar luci-theme-bootstrap
+          # -h 参数会保留符号链接
+          
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: luci-theme-bootstrap
-          path: repo/themes/luci-theme-bootstrap
+          path: repo/themes/luci-theme-bootstrap.tar
