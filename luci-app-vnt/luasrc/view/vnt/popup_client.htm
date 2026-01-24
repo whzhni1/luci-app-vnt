@@ -1,219 +1,408 @@
 <!DOCTYPE html>
-<html><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>vnt-cli 设置</title>
 <style>
+:root{
+    --bg:#e9ecef;
+    --text-main:#333;
+    --shadow-out:7px 7px 12px rgba(0,0,0,.4),-7px -7px 12px rgba(255,255,255,.9);
+    --shadow-in:inset -7px -7px 12px rgba(255,255,255,.9),inset 7px 7px 12px rgba(0,0,0,.4);
+    --c-link:#1677ff;
+    --radius:8px
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f5f5f5;color:#333}
-.tabs{display:flex;background:#4a90d9}
-.tab{padding:12px 24px;color:rgba(255,255,255,.8);cursor:pointer;font-weight:500;border-bottom:3px solid transparent}
-.tab:hover{background:rgba(255,255,255,.1);color:#fff}
-.tab.active{color:#fff;border-bottom-color:#fff;background:rgba(255,255,255,.15)}
-.content{display:none;padding:20px;max-height:calc(100vh - 120px);overflow-y:auto}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:transparent;color:var(--text-main);min-height:100vh}
+fieldset{border:none;padding:0;margin:0}
+legend{font-size:0}
+.tabs{margin-bottom:20px;display:flex;gap:15px}
+.tab{padding:10px 24px;border:none;border-radius:var(--radius);background:var(--bg);color:#666;cursor:pointer;font-weight:500;box-shadow:var(--shadow-out);transition:.2s all}
+.tab:hover{color:var(--c-link)}
+.tab.active{color:var(--c-link);box-shadow:var(--shadow-in)}
+.content{display:none;padding:0;animation:fadeIn .3s ease}
 .content.active{display:block}
-.form-group{margin-bottom:16px}
-.form-group>label{display:block;font-weight:500;margin-bottom:6px;color:#333}
-.form-group input[type="text"],.form-group input[type="password"],.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1px solid #ccc;border-radius:4px;font-size:14px}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#4a90d9;outline:none}
-.form-row{display:flex;gap:15px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:13px;color:#666;margin-bottom:8px;font-weight:500}
+.form-group input[type="text"],.form-group input[type="password"],.form-group select{
+    width:100%;padding:12px 15px;border:none;border-radius:var(--radius);
+    background:var(--bg);color:var(--text-main);box-shadow:var(--shadow-in);
+    font-size:14px;outline:none;transition:.2s all;font-family:inherit
+}
+.form-group input:focus,.form-group select:focus{
+    box-shadow:var(--shadow-in),inset 0 0 0 2px rgba(22,119,255,0.1)
+}
+.form-group select{-webkit-appearance:none;appearance:none}
+.form-row{display:flex;gap:20px}
 .form-row .form-group{flex:1}
-.form-check{display:flex;align-items:center;gap:8px;padding:8px 0}
-.form-check input{width:18px;height:18px}
-.form-tip{font-size:12px;color:#888;margin-top:4px}
-.dlist{margin-top:8px}
-.dlist-item{display:flex;gap:8px;margin-bottom:6px}
+.form-check{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:6px 0}
+.form-check input[type="checkbox"]{width:18px;height:18px;accent-color:var(--c-link);cursor:pointer}
+.form-check label{cursor:pointer;font-size:14px}
+.form-tip{font-size:12px;color:#999;margin-top:5px;line-height:1.4}
+.btn{padding:10px 24px;border:none;border-radius:10px;background:var(--bg);color:var(--text-main);cursor:pointer;box-shadow:var(--shadow-out);outline:none;font-weight:500;transition:.2s all;font-size:14px}
+.btn:hover{color:var(--c-link);transform:translateY(-2px)}
+.btn:active,.btn.active{box-shadow:var(--shadow-in);transform:translateY(0)}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-primary{color:var(--c-link);font-weight:600}
+.btn-danger{color:#ff4d4f}
+.btn-sm{padding:6px 12px;border-radius:6px;font-size:12px}
+.dlist{margin-top:8px;border-radius:var(--radius);background:rgba(0,0,0,.02);padding:10px;border:1px solid rgba(0,0,0,.03)}
+.dlist-item{display:flex;gap:10px;margin-bottom:8px}
+.dlist-item:last-child{margin-bottom:0}
 .dlist-item input{flex:1}
-.dlist-item .del{padding:8px 12px;background:#dc3545;border:none;color:#fff;border-radius:4px;cursor:pointer}
-.btn-add{padding:6px 12px;background:#6c757d;border:none;color:#fff;border-radius:4px;cursor:pointer;font-size:12px;margin-top:4px}
-.footer{padding:15px 20px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0}
-.btn{padding:10px 24px;border:none;border-radius:5px;cursor:pointer;font-weight:600;font-size:14px}
-.btn-primary{background:linear-gradient(180deg,#4a90d9,#357abd);color:#fff}
-.btn-primary:hover{background:linear-gradient(180deg,#5a9fe9,#4a90d9)}
-.btn-secondary{background:#6c757d;color:#fff}
-.upload-area{border:2px dashed #ccc;padding:20px;text-align:center;border-radius:8px;margin-bottom:15px}
-.upload-area input{display:none}
-.upload-area label{cursor:pointer;color:#4a90d9}
-.upload-status{margin-top:10px;font-size:13px}
+.dlist-item .del{width:36px;height:36px;border-radius:6px;background:var(--bg);color:#ff4d4f;border:none;cursor:pointer;box-shadow:var(--shadow-out);display:flex;align-items:center;justify-content:center;transition:.2s all}
+.dlist-item .del:hover{background:#ff4d4f;color:#fff;transform:scale(1.05)}
+.footer{margin-top:30px;padding-top:20px;border-top:1px solid rgba(0,0,0,.05);display:flex;justify-content:flex-end;gap:15px;align-items:center}
+.multi-check{display:flex;flex-wrap:wrap;gap:15px;padding:8px 0;background:rgba(0,0,0,.02);border-radius:var(--radius);padding:10px}
+.multi-check label{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--bg);color:var(--text-main);padding:12px 24px;border-radius:50px;box-shadow:0 5px 15px rgba(0,0,0,.2);display:flex;align-items:center;gap:10px;z-index:1000;transition:.3s cubic-bezier(.23,1,.32,1);opacity:0}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast-success{color:var(--c-link)}
+.toast-error{color:#ff4d4f}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 </style>
-</head><body>
+</head>
+<body>
+<%
+local nixio = require "nixio"
+local model = (nixio.fs.readfile("/proc/device-tree/model") or ""):gsub("%s+$", ""):gsub("[%c]", "")
+local hostname = (nixio.fs.readfile("/proc/sys/kernel/hostname") or ""):gsub("%s+$", "")
+local dev_name = (model ~= "" and model or hostname ~= "" and hostname or "OpenWrt"):gsub(" ", "_")
+%>
+
 <div class="tabs">
-    <div class="tab active" onclick="switchTab(0)">基本设置</div>
-    <div class="tab" onclick="switchTab(1)">高级设置</div>
-    <div class="tab" onclick="switchTab(2)">上传程序</div>
+    <div class="tab active" data-tab="0">基本设置</div>
+    <div class="tab" data-tab="1">高级设置</div>
 </div>
 
-<div class="content active" id="tab0">
-    <div class="form-check"><input type="checkbox" id="enabled"><label for="enabled">启用 vnt-cli</label></div>
-    <div class="form-group"><label>Token</label><input type="password" id="token" placeholder="必填，虚拟局域网标识"><div class="form-tip">相同Token的设备会组成一个虚拟局域网</div></div>
-    <div class="form-row">
-        <div class="form-group"><label>接口模式</label><select id="mode" onchange="toggleMode()"><option value="dhcp">动态分配</option><option value="static">手动指定</option></select></div>
-        <div class="form-group" id="ipaddr_wrap" style="display:none"><label>接口IP</label><input type="text" id="ipaddr" placeholder="10.26.0.5"></div>
-    </div>
-    <div class="form-group"><label>设备ID</label><input type="text" id="desvice_id" placeholder="唯一标识，不要重复"></div>
-    <div class="form-group"><label>本地网段</label><div class="dlist" id="localadd_list"></div><button type="button" class="btn-add" onclick="addItem('localadd')">+ 添加</button><div class="form-tip">如192.168.1.0/24</div></div>
-    <div class="form-group"><label>对端网段</label><div class="dlist" id="peeradd_list"></div><button type="button" class="btn-add" onclick="addItem('peeradd')">+ 添加</button><div class="form-tip">格式: 网段,对端IP 如192.168.2.0/24,10.26.0.3</div></div>
-    <div class="form-check"><input type="checkbox" id="forward"><label for="forward">启用IP转发</label></div>
-    <div class="form-check"><input type="checkbox" id="allow_wg"><label for="allow_wg">允许WireGuard接入</label></div>
-    <div class="form-check"><input type="checkbox" id="log"><label for="log">启用日志</label></div>
-</div>
+<form id="mainForm" onsubmit="return false;">
+    <div class="content active" id="tab0">
+        <div class="form-check"><input type="checkbox" id="enabled"><label for="enabled">启用 vnt-cli</label></div>
+        
+        <div class="form-group"><label>Token</label><input type="password" id="token" placeholder="必填，1-63位字符"><div class="form-tip">相同Token的设备组成虚拟局域网</div></div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>接口模式</label>
+                <select id="mode" data-toggle="ipaddr_wrap" data-show="static" onchange="handleToggle(this)">
+                    <option value="dhcp">动态分配</option>
+                    <option value="static">手动指定</option>
+                </select>
+                <div class="form-tip">动态分配由服务器随机分配IP</div>
+            </div>
+            <div class="form-group" id="ipaddr_wrap" style="display:none">
+                <label>接口IP</label><input type="text" id="ipaddr" placeholder="10.26.0.5">
+                <div class="form-tip">每个客户端IP不能相同</div>
+            </div>
+        </div>
+        
+        <div class="form-group"><label>设备ID</label><input type="text" id="desvice_id" placeholder="唯一标识"><div class="form-tip">每台设备唯一标识，不要重复</div></div>
+        
+        <div class="form-group">
+            <label>本地网段</label>
+            <div class="dlist" id="localadd_list"></div>
+            <button type="button" class="btn btn-sm" id="btnAddLocaladd">+ 添加</button>
+            <div class="form-tip">例如 192.168.1.0/24</div>
+        </div>
+        
+        <div class="form-group">
+            <label>对端网段</label>
+            <div class="dlist" id="peeradd_list"></div>
+            <button type="button" class="btn btn-sm" id="btnAddPeeradd">+ 添加</button>
+            <div class="form-tip">格式: 网段,对端IP 如192.168.2.0/24,10.26.0.3</div>
+        </div>
 
-<div class="content" id="tab1">
-    <div class="form-group"><label>程序路径</label><input type="text" id="clibin" placeholder="/usr/bin/vnt-cli"></div>
-    <div class="form-group"><label>服务器地址</label><input type="text" id="vntshost" placeholder="tcp://域名:端口"><div class="form-tip">支持 udp:// tcp:// ws:// wss://</div></div>
-    <div class="form-row">
-        <div class="form-group"><label>设备名称</label><input type="text" id="desvice_name"></div>
-        <div class="form-group"><label>网卡名称</label><input type="text" id="tunname" placeholder="vnt-tun"></div>
+        <div class="form-check"><input type="checkbox" id="forward"><label for="forward">启用IP转发</label></div>
+        <div class="form-check"><input type="checkbox" id="allow_wg"><label for="allow_wg">允许WireGuard接入</label></div>
+        <div class="form-check"><input type="checkbox" id="log"><label for="log">启用日志</label></div>
     </div>
-    <div class="form-row">
-        <div class="form-group"><label>传输模式</label><select id="relay"><option value="自动">自动</option><option value="转发">转发</option><option value="P2P">P2P</option></select></div>
-        <div class="form-group"><label>打洞模式</label><select id="punch"><option value="all">都使用</option><option value="ipv4">仅IPv4</option><option value="ipv6">仅IPv6</option><option value="ipv4-tcp">仅IPv4-TCP</option><option value="ipv6-tcp">仅IPv6-TCP</option><option value="ipv4-udp">仅IPv4-UDP</option><option value="ipv6-udp">仅IPv6-UDP</option></select></div>
-    </div>
-    <div class="form-row">
-        <div class="form-group"><label>加密模式</label><select id="passmode" onchange="toggleKey()"><option value="off">不加密</option><option value="aes_gcm">AES-GCM</option><option value="aes_cbc">AES-CBC</option><option value="aes_ecb">AES-ECB</option><option value="chacha20_poly1305">ChaCha20-Poly1305</option><option value="chacha20">ChaCha20</option><option value="sm4_cbc">SM4-CBC</option><option value="xor">XOR混淆</option></select></div>
-        <div class="form-group" id="key_wrap" style="display:none"><label>加密密钥</label><input type="password" id="key"></div>
-    </div>
-    <div class="form-group"><label>DNS服务器</label><div class="dlist" id="vntdns_list"></div><button type="button" class="btn-add" onclick="addItem('vntdns')">+ 添加</button></div>
-    <div class="form-group"><label>STUN服务器</label><div class="dlist" id="stunhost_list"></div><button type="button" class="btn-add" onclick="addItem('stunhost')">+ 添加</button></div>
-    <div class="form-group"><label>端口映射</label><div class="dlist" id="mapping_list"></div><button type="button" class="btn-add" onclick="addItem('mapping')">+ 添加</button><div class="form-tip">格式: tcp:0.0.0.0:80->10.26.0.10:80</div></div>
-    <div class="form-row">
-        <div class="form-group"><label>本地监听端口</label><input type="text" id="client_port" placeholder="0,0"></div>
-        <div class="form-group"><label>MTU</label><input type="text" id="mtu" placeholder="留空自动"></div>
-    </div>
-    <div class="form-group"><label>绑定出口网卡</label><select id="local_dev"><option value="">不绑定</option></select></div>
-    <div class="form-check"><input type="checkbox" id="serverw"><label for="serverw">服务端加密通信</label></div>
-    <div class="form-check"><input type="checkbox" id="finger"><label for="finger">数据指纹校验</label></div>
-    <div class="form-check"><input type="checkbox" id="first_latency"><label for="first_latency">优化传输(低延迟优先)</label></div>
-    <div class="form-check"><input type="checkbox" id="disable_stats"><label for="disable_stats">启用流量统计</label></div>
-    <div class="form-check"><input type="checkbox" id="check" onchange="toggleCheck()"><label for="check">通断检测</label></div>
-    <div id="check_wrap" style="display:none">
-        <div class="form-group"><label>检测IP</label><div class="dlist" id="checkip_list"></div><button type="button" class="btn-add" onclick="addItem('checkip')">+ 添加</button></div>
-        <div class="form-group"><label>检测间隔(分钟)</label><select id="checktime"><% for i=1,60 do %><option value="<%=i%>"><%=i%></option><% end %></select></div>
-    </div>
-</div>
 
-<div class="content" id="tab2">
-    <div class="upload-area">
-        <input type="file" id="upload_file" onchange="doUpload()">
-        <label for="upload_file">📁 点击选择文件或拖拽到此处</label>
-        <div class="form-tip">支持 vnt-cli、vnts 二进制文件或 .tar.gz 压缩包</div>
-        <div class="upload-status" id="upload_status"></div>
-    </div>
-    <div class="form-tip">下载地址: <a href="https://github.com/vnt-dev/vnt/releases" target="_blank">vnt-cli</a> | <a href="https://github.com/vnt-dev/vnts/releases" target="_blank">vnts</a></div>
-</div>
+    <div class="content" id="tab1">
+        <div class="form-group"><label>程序路径</label><input type="text" id="clibin" placeholder="/usr/bin/vnt-cli"><div class="form-tip">自定义vnt-cli的存放路径</div></div>
+        
+        <div class="form-group"><label>服务器地址</label><input type="text" id="vntshost" placeholder="tcp://域名:端口"><div class="form-tip">支持 udp:// tcp:// ws:// wss://</div></div>
+        
+        <div class="form-group">
+            <label>DNS服务器</label>
+            <div class="dlist" id="vntdns_list"></div>
+            <button type="button" class="btn btn-sm" id="btnAddVntdns">+ 添加</button>
+            <div class="form-tip">如 8.8.8.8:53，不填使用系统DNS</div>
+        </div>
+        
+        <div class="form-group">
+            <label>STUN服务器</label>
+            <div class="dlist" id="stunhost_list"></div>
+            <button type="button" class="btn btn-sm" id="btnAddStunhost">+ 添加</button>
+            <div class="form-tip">已内置谷歌QQ，可不填</div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>设备名称</label>
+                <input type="text" id="desvice_name" data-default="<%=dev_name%>" placeholder="<%=dev_name%>">
+                <div class="form-tip">本机设备名称</div>
+            </div>
+            <div class="form-group"><label>网卡名称</label><input type="text" id="tunname" placeholder="vnt-tun"></div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>传输模式</label>
+                <select id="relay">
+                    <option value="自动">自动</option>
+                    <option value="转发">转发</option>
+                    <option value="P2P">P2P</option>
+                </select>
+                <div class="form-tip">自动根据网络环境选择</div>
+            </div>
+            <div class="form-group"><label>监听端口</label><input type="text" id="client_port" placeholder="0,0"><div class="form-tip">多端口用逗号分隔</div></div>
+        </div>
+        
+        <div class="form-group">
+            <label>端口映射</label>
+            <div class="dlist" id="mapping_list"></div>
+            <button type="button" class="btn btn-sm" id="btnAddMapping">+ 添加</button>
+            <div class="form-tip">如 tcp:0.0.0.0:80->10.26.0.10:80</div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group"><label>MTU</label><input type="text" id="mtu" placeholder="留空自动"><div class="form-tip">默认不加密1450，加密1410</div></div>
+            <div class="form-group">
+                <label>打洞模式</label>
+                <select id="punch">
+                    <option value="all">都使用</option><option value="ipv4">仅IPv4</option><option value="ipv6">仅IPv6</option>
+                    <option value="ipv4-tcp">仅IPv4-TCP</option><option value="ipv6-tcp">仅IPv6-TCP</option>
+                    <option value="ipv4-udp">仅IPv4-UDP</option><option value="ipv6-udp">仅IPv6-UDP</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>压缩模式</label>
+                <select id="comp">
+                    <option value="OFF">关闭</option><option value="lz4">LZ4</option><option value="zstd">ZSTD</option>
+                </select>
+                <div class="form-tip">zstd需程序编译时支持</div>
+            </div>
+            <div class="form-group">
+                <label>加密模式</label>
+                <select id="passmode" data-toggle="key_wrap" data-hide="off" onchange="handleToggle(this)">
+                    <option value="off">不加密</option><option value="aes_gcm">AES-GCM</option><option value="aes_cbc">AES-CBC</option>
+                    <option value="aes_ecb">AES-ECB</option><option value="sm4_cbc">SM4-CBC</option><option value="chacha20">ChaCha20</option>
+                    <option value="chacha20_poly1305">ChaCha20-Poly1305</option>
+                    <option value="xor">XOR混淆</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-group" id="key_wrap" style="display:none"><label>加密密钥</label><input type="password" id="key" placeholder="使用相同密钥的客户端才能通信"></div>
+        
+        <div class="form-group">
+            <label>绑定出口网卡</label>
+            <select id="local_dev"><option value="">不绑定</option></select>
+            <div class="form-tip">指定作为流量出口的网卡</div>
+        </div>
+        
+        <div class="form-group">
+            <label>访问控制</label>
+            <div class="multi-check">
+                <label><input type="checkbox" name="vnt_forward" value="vntfwlan">VNT→LAN</label>
+                <label><input type="checkbox" name="vnt_forward" value="vntfwwan">VNT→WAN</label>
+                <label><input type="checkbox" name="vnt_forward" value="lanfwvnt">LAN→VNT</label>
+                <label><input type="checkbox" name="vnt_forward" value="wanfwvnt">WAN→VNT</label>
+            </div>
+            <div class="form-tip">设置不同网络区域之间的流量允许规则</div>
+        </div>
 
-<div class="footer">
-    <button class="btn btn-secondary" onclick="parent.closeModal('settings')">取消</button>
-    <button class="btn btn-primary" onclick="saveConfig()">保存并应用</button>
-</div>
+        <div class="form-check"><input type="checkbox" id="serverw"><label for="serverw">服务端加密</label></div>
+        <div class="form-check"><input type="checkbox" id="finger"><label for="finger">指纹校验</label></div>
+        <div class="form-check"><input type="checkbox" id="first_latency"><label for="first_latency">低延迟优先</label></div>
+        <div class="form-check"><input type="checkbox" id="disable_stats"><label for="disable_stats">流量统计</label></div>
+        
+        <div class="form-check"><input type="checkbox" id="check" data-toggle="check_wrap" checked onchange="handleToggle(this)"><label for="check">通断检测</label></div>
+        <div id="check_wrap">
+            <div class="form-group">
+                <label>检测IP</label>
+                <div class="dlist" id="checkip_list"></div>
+                <button type="button" class="btn btn-sm" id="btnAddCheckip">+ 添加</button>
+                <div class="form-tip">对端设备的虚拟IP地址</div>
+            </div>
+            <div class="form-group"><label>间隔(分钟)</label><select id="checktime"><% for i=1,60 do %><option value="<%=i%>"><%=i%></option><% end %></select></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <button class="btn btn-primary" type="submit" id="saveBtn">保存配置</button>
+    </div>
+</form>
+
+<div class="toast" id="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
 
 <script>
-var cfg={},lists=['localadd','peeradd','vntdns','stunhost','mapping','checkip'];
-function $(id){return document.getElementById(id)}
-function ajax(url,cb,data){var x=new XMLHttpRequest();x.open(data?'POST':'GET',url,true);if(data)x.setRequestHeader('Content-Type','application/x-www-form-urlencoded');x.onload=function(){cb&&cb(x.responseText)};x.send(data)}
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)},$$=function(s){return document.querySelectorAll(s)};
+var originalConfig={};
 
-function switchTab(i){document.querySelectorAll('.tab').forEach(function(t,j){t.classList.toggle('active',j==i)});document.querySelectorAll('.content').forEach(function(c,j){c.classList.toggle('active',j==i)})}
-function toggleMode(){$('ipaddr_wrap').style.display=$('mode').value=='static'?'block':'none'}
-function toggleKey(){$('key_wrap').style.display=$('passmode').value!='off'?'block':'none'}
-function toggleCheck(){$('check_wrap').style.display=$('check').checked?'block':'none'}
+var fields={
+    enabled:'c',token:'',mode:'static',ipaddr:'',desvice_id:'',
+    forward:'c',allow_wg:'c',log:'c',
+    clibin:'',vntshost:'',desvice_name:'',tunname:'',
+    relay:'自动',client_port:'',mtu:'',punch:'all',comp:'OFF',
+    passmode:'off',key:'',local_dev:'',
+    serverw:'c',finger:'c',first_latency:'c',disable_stats:'c',
+    check:'c',checktime:'1'
+};
+var lists=['localadd','peeradd','vntdns','stunhost','mapping','checkip'];
 
-function addItem(name,val){
-    var list=$(name+'_list'),div=document.createElement('div');
-    div.className='dlist-item';
-    div.innerHTML='<input type="text" value="'+(val||'')+'" placeholder=""><button type="button" class="del" onclick="this.parentNode.remove()">✕</button>';
-    list.appendChild(div);
+function handleToggle(el){
+    var t=el.dataset.toggle;if(!t)return;
+    var v=(el.type==='checkbox')?el.checked:(el.value===el.dataset.show);
+    $(t).style.display=v?'':'none';
 }
-function getListValues(name){
-    var vals=[];
-    $(name+'_list').querySelectorAll('input').forEach(function(inp){if(inp.value)vals.push(inp.value)});
-    return vals;
+
+function switchTab(i){
+    $$('.tab').forEach(function(t,n){t.classList.toggle('active',n==i)});
+    $$('.content').forEach(function(c,n){c.classList.toggle('active',n==i)});
+}
+
+function windowClose(){
+    if(window.parent&&window.parent.closeModal)window.parent.closeModal('settings');
+    else window.close();
+}
+
+function addItem(n,v){
+    var l=$(n+'_list');
+    if(!l)return;
+    var d=document.createElement('div');
+    d.className='dlist-item';
+    d.innerHTML='<input type="text" data-list="'+n+'" value="'+(v||'')+'"><button type="button" class="del" onclick="this.parentElement.remove()">✕</button>';
+    l.appendChild(d);
+}
+
+function getList(n){
+    var a=[];
+    $$('#'+n+'_list input').forEach(function(e){var v=e.value.trim();if(v)a.push(v)});
+    return a
+}
+
+function applyConfig(data){
+    Object.keys(fields).forEach(function(id){
+        var el=$(id);if(!el)return;
+        var v=data['c_'+id],d=fields[id];
+        if(d==='c')el.checked=v==='1';else el.value=(v!=null&&v!=='')?v:(d||'');
+        if(el.dataset.toggle)handleToggle(el);
+    });
+    
+    var fw=data.c_vnt_forward;
+    if(typeof fw==='string')fw=fw.split(' ');
+    if(!Array.isArray(fw))fw=['vntfwlan','vntfwwan','lanfwvnt'];
+    $$('[name="vnt_forward"]').forEach(function(c){c.checked=fw.indexOf(c.value)>=0});
+    
+    lists.forEach(function(n){
+        var l=$(n+'_list');
+        if(l)l.innerHTML='';
+        var v=data['c_'+n];
+        if(Array.isArray(v)){
+            v.forEach(function(x){addItem(n,x)});
+        }
+        if(!l||!l.children.length)addItem(n);
+    });
 }
 
 function loadConfig(){
-    ajax('<%=url("admin/vpn/vnt/get_config")%>',function(r){
-        cfg=JSON.parse(r);
-        $('enabled').checked=cfg.c_enabled=='1';
-        $('token').value=cfg.c_token||'';
-        $('mode').value=cfg.c_mode||'dhcp';toggleMode();
-        $('ipaddr').value=cfg.c_ipaddr||'';
-        $('desvice_id').value=cfg.c_desvice_id||'';
-        $('forward').checked=cfg.c_forward=='1';
-        $('allow_wg').checked=cfg.c_allow_wg=='1';
-        $('log').checked=cfg.c_log=='1';
-        $('clibin').value=cfg.c_clibin||'';
-        $('vntshost').value=cfg.c_vntshost||'';
-        $('desvice_name').value=cfg.c_desvice_name||'';
-        $('tunname').value=cfg.c_tunname||'';
-        $('relay').value=cfg.c_relay||'自动';
-        $('punch').value=cfg.c_punch||'all';
-        $('passmode').value=cfg.c_passmode||'off';toggleKey();
-        $('key').value=cfg.c_key||'';
-        $('client_port').value=cfg.c_client_port||'';
-        $('mtu').value=cfg.c_mtu||'';
-        $('serverw').checked=cfg.c_serverw=='1';
-        $('finger').checked=cfg.c_finger=='1';
-        $('first_latency').checked=cfg.c_first_latency=='1';
-        $('disable_stats').checked=cfg.c_disable_stats=='1';
-        $('check').checked=cfg.c_check=='1';toggleCheck();
-        $('checktime').value=cfg.c_checktime||'1';
-        
-        lists.forEach(function(name){
-            var val=cfg['c_'+name];
-            if(val){
-                if(typeof val=='string')addItem(name,val);
-                else if(Array.isArray(val))val.forEach(function(v){addItem(name,v)});
-            }else{addItem(name)}
-        });
-    });
-    ajax('<%=url("admin/vpn/vnt/get_ifaces")%>',function(r){
-        var ifaces=JSON.parse(r),sel=$('local_dev');
-        ifaces.forEach(function(f){var o=document.createElement('option');o.value=f.name;o.textContent=f.name+' ('+f.ip+')';sel.appendChild(o)});
-        if(cfg.c_local_dev)sel.value=cfg.c_local_dev;
-    });
+    var x=new XMLHttpRequest();
+    x.open('GET','<%=url("admin/vpn/vnt/get_config")%>',true);
+    x.onload=function(){
+        if(x.status===200){
+            try{
+                var data=JSON.parse(x.responseText);
+                originalConfig=data;
+                applyConfig(data);
+                
+                var y=new XMLHttpRequest();
+                y.open('GET','<%=url("admin/vpn/vnt/get_ifaces")%>',true);
+                y.onload=function(){
+                    if(y.status===200){
+                        var ifaces=JSON.parse(y.responseText),sel=$('local_dev');
+                        ifaces.forEach(function(f){
+                            var o=document.createElement('option');
+                            o.value=f.name;o.textContent=f.name+' ('+f.ip+')';
+                            sel.appendChild(o)
+                        });
+                        if(originalConfig.c_local_dev)sel.value=originalConfig.c_local_dev;
+                    }
+                };
+                y.send();
+            }catch(e){console.error(e)}
+        }
+    };
+    x.send();
 }
 
 function saveConfig(){
-    var data={
-        enabled:$('enabled').checked?'1':'0',
-        token:$('token').value,
-        mode:$('mode').value,
-        ipaddr:$('ipaddr').value,
-        desvice_id:$('desvice_id').value,
-        forward:$('forward').checked?'1':'0',
-        allow_wg:$('allow_wg').checked?'1':'0',
-        log:$('log').checked?'1':'0',
-        clibin:$('clibin').value,
-        vntshost:$('vntshost').value,
-        desvice_name:$('desvice_name').value,
-        tunname:$('tunname').value,
-        relay:$('relay').value,
-        punch:$('punch').value,
-        passmode:$('passmode').value,
-        key:$('key').value,
-        client_port:$('client_port').value,
-        mtu:$('mtu').value,
-        local_dev:$('local_dev').value,
-        serverw:$('serverw').checked?'1':'0',
-        finger:$('finger').checked?'1':'0',
-        first_latency:$('first_latency').checked?'1':'0',
-        disable_stats:$('disable_stats').checked?'1':'0',
-        check:$('check').checked?'1':'0',
-        checktime:$('checktime').value
+    var btn=$('saveBtn'),t=btn.textContent;
+    btn.disabled=true;btn.textContent='保存中...';
+    var fd=new FormData();
+    Object.keys(fields).forEach(function(id){
+        var el=$(id);if(!el)return;
+        var val = (fields[id]==='c')?(el.checked?'1':'0'):el.value;
+        if(id === 'desvice_name' && val === ''){
+            val = el.dataset.default || '';
+        }
+        fd.append(id,val);
+    });
+    $$('[name="vnt_forward"]:checked').forEach(function(c,i){fd.append('vnt_forward.'+(i+1),c.value)});
+    lists.forEach(function(n){getList(n).forEach(function(v,i){fd.append(n+'.'+(i+1),v)})});
+    var x=new XMLHttpRequest();
+    x.open('POST','<%=url("admin/vpn/vnt/save_client")%>',true);
+    x.onload=function(){
+        btn.disabled=false;btn.textContent=t;
+        if(x.status===200){
+            applyConfig(JSON.parse(x.responseText));
+            showToast('配置已保存并应用','success');
+            setTimeout(windowClose,1500);
+        }else{
+            showToast('保存失败，请重试','error');
+        }
     };
-    lists.forEach(function(name){data[name]=getListValues(name)});
-    ajax('<%=url("admin/vpn/vnt/save_client")%>',function(){parent.closeModal('settings')},'data='+encodeURIComponent(JSON.stringify(data)));
+    x.onerror=function(){btn.disabled=false;btn.textContent=t;showToast('网络错误','error')};
+    x.send(fd);
 }
 
-function doUpload(){
-    var file=$('upload_file').files[0];
-    if(!file)return;
-    var fd=new FormData();fd.append('file',file);
-    var x=new XMLHttpRequest();
-    x.open('POST','<%=url("admin/vpn/vnt/upload")%>',true);
-    x.onload=function(){$('upload_status').textContent='上传成功: '+file.name};
-    x.send(fd);
-    $('upload_status').textContent='上传中...';
+function showToast(msg,type){
+    var t=$('toast');t.className='toast show toast-'+(type||'');
+    $('toastMsg').textContent=msg;
+    $('toastIcon').textContent=type==='success'?'✓':'✗';
+    setTimeout(function(){t.classList.remove('show')},3000);
 }
+
+document.addEventListener('click',function(e){
+    var t=e.target;
+    if(t.dataset.tab!==undefined){
+        switchTab(+t.dataset.tab);
+        return;
+    }
+    if(t.id==='btnAddLocaladd'){addItem('localadd');return}
+    if(t.id==='btnAddPeeradd'){addItem('peeradd');return}
+    if(t.id==='btnAddVntdns'){addItem('vntdns');return}
+    if(t.id==='btnAddStunhost'){addItem('stunhost');return}
+    if(t.id==='btnAddMapping'){addItem('mapping');return}
+    if(t.id==='btnAddCheckip'){addItem('checkip');return}
+});
+
+document.addEventListener('change',function(e){
+    if(e.target.dataset.toggle)handleToggle(e.target);
+});
+
+document.getElementById('mainForm').addEventListener('submit',function(e){
+    e.preventDefault();saveConfig();
+});
 
 loadConfig();
+})();
 </script>
-</body></html>
+</body>
+</html>
