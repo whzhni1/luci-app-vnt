@@ -30,14 +30,38 @@ jobs:
             echo "$BASE/$f"
           done
 
-      - name: Pack and Upload
+      - name: Pack tar (原始结构)
         run: |
           cd repo/themes
-          tar -cvhf luci-theme-bootstrap.tar luci-theme-bootstrap
-          # -h 参数会保留符号链接
-          
-      - name: Upload Artifact
+          tar -cvf luci-theme-bootstrap.tar luci-theme-bootstrap
+
+      - name: Upload tar (保留目录结构)
+        uses: actions/upload-artifact@v4
+        with:
+          name: luci-theme-bootstrap-tar
+          path: repo/themes/luci-theme-bootstrap.tar
+
+      - name: Upload full (展开所有文件)
         uses: actions/upload-artifact@v4
         with:
           name: luci-theme-bootstrap
-          path: repo/themes/luci-theme-bootstrap.tar
+          path: repo/themes/luci-theme-bootstrap
+
+      - name: Pack flattened version (扁平化所有文件)
+        run: |
+          mkdir -p flat/luci-theme-bootstrap
+          cd repo/themes/luci-theme-bootstrap
+
+          # 把所有文件复制到 flat/luci-theme-bootstrap（不保留目录结构）
+          find . -type f | while read f; do
+            cp "$f" "../../../flat/luci-theme-bootstrap/$(basename "$f")"
+          done
+
+          cd ../../../flat
+          tar -cvf luci-theme-bootstrap-flat.tar luci-theme-bootstrap
+
+      - name: Upload flattened tar
+        uses: actions/upload-artifact@v4
+        with:
+          name: luci-theme-bootstrap-flat
+          path: flat/luci-theme-bootstrap-flat.tar
