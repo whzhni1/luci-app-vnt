@@ -1,56 +1,85 @@
 <%+header%>
 <style>
-:root{--bg:#454141;--card:#454141;--border:#5a5555;--text:#e0e0e0;--text2:#aaa;--accent:#4a90d9;--green:#28a745;--red:#dc3545;--yellow:#ffc107}
-.vnt-wrap{max-width:1200px;margin:0 auto;padding:15px}
-.row{display:flex;gap:15px;margin-bottom:15px;flex-wrap:wrap}
+:root{
+    --bg:#e9ecef;
+    --text-main:#333;
+    --shadow-out:7px 7px 12px rgba(0,0,0,.4),-7px -7px 12px rgba(255,255,255,.9);
+    --shadow-in:inset -7px -7px 12px rgba(255,255,255,.9),inset 7px 7px 12px rgba(0,0,0,.4);
+    --c-on:#52c41a;
+    --c-off:#ff4d4f;
+    --c-link:#1677ff;
+    --c-warn:#faad14
+}
+body{background:var(--bg);color:var(--text-main);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.5;margin:0}
+*{box-sizing:border-box}
+.vnt-wrap{max-width:1200px;margin:0 auto;padding:20px}
+.row{display:flex;gap:20px;margin-bottom:20px;flex-wrap:wrap}
 .col{flex:1;min-width:300px}
-.card{background:var(--card);border-radius:8px;border:1px solid var(--border);overflow:hidden}
-.card-head{background:linear-gradient(135deg,#3a3636,#2d2a2a);color:#fff;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;font-weight:600}
-.card-head .icons{display:flex;gap:10px}
-.card-head .icons span{cursor:pointer;opacity:.85;font-size:18px;padding:4px}
-.card-head .icons span:hover{opacity:1}
-.card-body{padding:15px}
-.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);color:var(--text)}
-.info-row:last-child{border:none}
-.info-row .l{color:var(--text2)}.info-row .v{font-weight:500}
-.on{color:#28a745!important}.off{color:#dc3545!important}.warn{color:#ffc107!important}
-.panel{background:var(--card);border-radius:8px;border:1px solid var(--border);margin-bottom:15px}
-.bar{display:flex;gap:8px;padding:12px 15px;background:#3a3636;border-bottom:1px solid var(--border);align-items:center;flex-wrap:wrap}
-.btn{padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:600;font-size:13px;color:#333;background:linear-gradient(180deg,#f0f0f0,#d5d5d5)}
-.btn:hover{transform:translateY(-1px)}
-.btn.active{background:linear-gradient(180deg,var(--accent),#357abd);color:#fff}
-.btn-icon{width:34px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center;margin-left:auto;background:linear-gradient(180deg,#555,#444);color:#fff}
-.box{min-height:180px;padding:15px;color:var(--text);overflow-x:auto;-webkit-overflow-scrolling:touch}
-.dtable{width:100%;border-collapse:collapse;min-width:600px}
-.dtable th,.dtable td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
-.dtable th{background:#3a3636;color:#fff;font-weight:600}
-.dtable tr:hover{background:#4a4545}
-.dtable code{background:#333;padding:2px 6px;border-radius:3px}
-.empty{text-align:center;padding:40px;color:var(--text2)}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999}
-.modal.show{display:block}
-.mbox{background:#fff;border-radius:8px;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.5);position:absolute;overflow:hidden;width:700px;height:550px;max-width:95vw;max-height:85vh}
-.mhead{padding:14px 18px;background:var(--accent);color:#fff;display:flex;justify-content:space-between;align-items:center;cursor:move;user-select:none;font-weight:600}
-.mhead h3{margin:0;font-size:16px}
-.mhead .icons span{cursor:pointer;font-size:18px;margin-left:12px}
-.mbody{flex:1;overflow:auto;background:#fff;color:#333;padding:15px}
-.mbody.frame{padding:0}
+.card{background:var(--bg);border-radius:15px;padding:20px;box-shadow:var(--shadow-out);transition:.2s all;border:none}
+.card:hover{box-shadow:9px 9px 15px rgba(0,0,0,.4),-9px -9px 15px rgba(255,255,255,.9)}
+.card-head{color:var(--text-main);padding:0 0 15px 0;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:16px}
+.card-head .icons{display:flex;gap:12px}
+.card-head .icons span{cursor:pointer;opacity:.8;font-size:18px;width:36px;height:36px;border-radius:50%;background:var(--bg);box-shadow:5px 5px 8px rgba(0,0,0,.3),-5px -5px 8px rgba(255,255,255,.9);display:inline-flex;align-items:center;justify-content:center;transition:.2s all}
+.card-head .icons span:active{box-shadow:var(--shadow-in);transform:translateY(0)}
+.card-head .icons span:hover{opacity:1;color:var(--c-link)}
+.card-body{padding-top:5px}
+.info-row{display:flex;justify-content:space-between;padding:12px 0;padding-bottom:0}
+.info-row:last-child{padding-bottom:12px}
+.info-row .l{color:#666;font-weight:400}
+.info-row .v{font-weight:600;color:var(--text-main)}
+.on{color:var(--c-on)!important}
+.off{color:var(--c-off)!important}
+.warn{color:var(--c-warn)!important}
+.link{color:var(--c-link);cursor:pointer;font-weight:500}
+.link:hover{text-decoration:underline}
+.panel{background:var(--bg);border-radius:15px;padding:15px;box-shadow:var(--shadow-in);border:none}
+.bar{display:flex;gap:15px;padding:10px;align-items:center;flex-wrap:wrap}
+.bar .btn-icon:last-child{margin-left:auto}
+.btn{padding:10px 24px;border:none;border-radius:10px;background:var(--bg);color:var(--text-main);cursor:pointer;box-shadow:var(--shadow-out);outline:none;font-weight:500;transition:.2s all}
+.btn:hover{color:var(--c-link)}
+.btn:active,.btn.active{box-shadow:var(--shadow-in);transform:translateY(0);color:var(--c-link);font-weight:600}
+.btn-icon{width:42px;height:42px;border-radius:50%;background:var(--bg);color:var(--text-main);border:none;cursor:pointer;box-shadow:var(--shadow-out);padding:0;display:flex;align-items:center;justify-content:center;transition:.2s all}
+.btn-icon:active{box-shadow:var(--shadow-in);transform:translateY(0)}
+.btn-icon:hover{color:var(--c-link)}
+.btn-icon span{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:18px}
+.box{min-height:350px;padding:20px;color:var(--text-main);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.dtable{width:100%;border-collapse:collapse;font-size:14px;min-width:600px}
+.dtable th,.dtable td{padding:16px;text-align:left;color:var(--text-main);background:transparent}
+.dtable th{font-weight:600;border-bottom:2px solid rgba(0,0,0,.05)}
+.dtable tr{border-bottom:1px solid rgba(0,0,0,.03)}
+code{background:transparent;color:inherit;border:none;padding:0;margin:0;box-shadow:none;font-family:inherit;font-size:inherit;display:inline}
+textarea,input,select,pre{background:var(--bg);color:var(--text-main);border:none;outline:none;padding:15px;border-radius:8px;width:100%;box-shadow:var(--shadow-in);font-family:Consolas,monospace,"Courier New";margin:10px 0;resize:vertical}
+.empty{display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;min-height:350px;color:#999;width:100%;background:rgba(255,255,255,.4);border-radius:15px;box-shadow:var(--shadow-in)}
+.mbox{display:none;position:fixed;background:var(--bg);border-radius:15px;box-shadow:10px 10px 20px rgba(0,0,0,.4),-10px -10px 20px rgba(255,255,255,.9);z-index:9999;width:850px;height:650px;max-width:95vw;max-height:90vh;flex-direction:column;top:50%;left:50%;transform:translate(-50%,-50%);border:none}
+.mbox.show{display:flex}
+.mhead{padding:16px 24px;color:var(--text-main);display:flex;justify-content:space-between;align-items:center;cursor:move;user-select:none;font-weight:600;border-bottom:1px solid rgba(0,0,0,.06)}
+.mhead:active{user-select:none}
+.mhead h3{margin:0;font-size:16px;pointer-events:none;color:#000}
+.mhead .icons span{cursor:pointer;font-size:18px;margin-left:12px;opacity:.6;color:#000;background:var(--bg);box-shadow:5px 5px 8px rgba(0,0,0,.3),-5px -5px 8px rgba(255,255,255,.9);border-radius:50%;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;transition:.2s all}
+.mhead .icons span:hover{opacity:1;color:var(--c-link)}
+.mhead .icons span:active{box-shadow:var(--shadow-in);transform:translateY(0)}
+.mbody{flex:1;overflow:auto;background:rgba(255,255,255,.4);color:var(--text-main);padding:20px;position:relative;border-radius:0 0 15px 15px}
 .mbody iframe{width:100%;height:100%;border:none}
-.mbody pre{background:#f5f5f5;color:#333;padding:15px;border-radius:6px;border:1px solid #ddd;margin:0;height:100%;overflow:auto;font-size:13px;white-space:pre-wrap;word-break:break-all}
-.mfoot{padding:12px 18px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:flex-end}
-.mresize{position:absolute;right:0;bottom:0;width:30px;height:30px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,rgba(0,0,0,.1) 50%)}
-.about{background:var(--card);border-radius:8px;border:1px solid var(--border);padding:12px 15px;text-align:center;color:var(--text2)}
-.about a{color:var(--accent)}
-.toast{position:fixed;top:20px;right:20px;background:#333;color:#fff;padding:12px 20px;border-radius:6px;z-index:10000;display:none}
-.toast.show{display:block;animation:fadeIn .3s}
-.link{cursor:pointer;color:var(--accent);text-decoration:underline}
-.pkg{padding:12px;margin:6px 0;background:#f5f5f5;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-family:monospace;color:#333}
-.pkg:hover{background:#e8f4fc;border-color:var(--accent)}
-.uinfo{padding:15px;background:#f9f9f9;border-radius:6px;margin-bottom:15px;line-height:1.8;color:#333}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1}}
-@keyframes spin{to{transform:rotate(360deg)}}
-.spin{display:inline-block;animation:spin 1s linear infinite}
-@media(max-width:768px){.mbox{width:95vw;height:80vh}.dtable{min-width:500px}}
+.mfoot{padding:16px 24px;background:var(--bg);border-top:1px solid rgba(0,0,0,.06);display:flex;justify-content:flex-end;gap:15px;border-radius:0 0 15px 15px;z-index:10}
+.mresize{position:absolute;right:0;bottom:0;width:30px;height:30px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,#ccc 50%);border-bottom-right-radius:15px;opacity:.5;z-index:10}
+.mresize:hover{opacity:1}
+.about{background:var(--bg);border-radius:15px;padding:16px;text-align:center;color:#666;font-size:13px;box-shadow:var(--shadow-in)}
+.about a{color:var(--c-link);text-decoration:none;margin:0 5px;font-weight:500}
+.about a:hover{text-decoration:underline}
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg);color:var(--text-main);padding:12px 24px;border-radius:8px;z-index:10001;display:none;box-shadow:var(--shadow-out);font-size:14px;font-weight:500}
+.toast.show{display:block;animation:slideIn .3s cubic-bezier(.23,1,.32,1)}
+.pkg{padding:16px;margin:10px 0;background:var(--bg);border-radius:10px;cursor:pointer;font-family:monospace;color:var(--text-main);transition:.2s all;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow-out);border:none}
+.pkg:hover{transform:translateY(-2px);color:var(--c-link)}
+.pkg:active{box-shadow:var(--shadow-in);transform:translateY(0)}
+.uinfo{padding:20px;background:rgba(255,255,255,.5);border-radius:10px;margin-bottom:20px;line-height:1.8;color:var(--text-main);box-shadow:var(--shadow-in)}
+.spin{display:inline-flex;align-items:center;justify-content:center;animation:spin 1s linear infinite;width:1em;height:1em;vertical-align:middle}
+.btn-modal{padding:8px 20px;border-radius:10px;background:var(--bg);color:#555;border:none;cursor:pointer;font-size:14px;transition:.2s all;box-shadow:var(--shadow-out);font-weight:500}
+.btn-modal:hover{color:var(--c-link)}
+.btn-modal.primary{color:var(--c-link);font-weight:600}
+.btn-modal:active{box-shadow:var(--shadow-in)}
+@media(max-width:768px){.mbox{width:95vw;height:80vh}.vnt-wrap{padding:10px}}
+@keyframes slideIn{from{opacity:0;transform:translate(-50%,-50%) scale(0.8)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 </style>
 
 <div class="vnt-wrap">
@@ -63,21 +92,44 @@
     <div class="about">ℹ️ <b>VNT</b> - 简便高效的异地组网工具 | <a href="http://rustvnt.com" target="_blank">官网</a> | <a href="https://github.com/vnt-dev/vnt" target="_blank">GitHub</a> | <a href="https://github.com/vnt-dev/VntApp" target="_blank">GUIApp</a></div>
 </div>
 
-<div class="modal" id="modal"><div class="mbox"><div class="mhead"><h3 id="m_title"></h3><div class="icons" id="m_icons"></div></div><div class="mbody" id="m_body"></div><div class="mfoot" id="m_foot"></div><div class="mresize"></div></div></div>
+<div class="mbox" id="mbox"><div class="mhead"><h3 id="m_title"></h3><div class="icons" id="m_icons"></div></div><div class="mbody" id="m_body"></div><div class="mfoot" id="m_foot"></div><div class="mresize"></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
 (function(){
 var $=function(id){return document.getElementById(id)},
-    L='<span class="spin">🔄</span> 加载中...',
-    curTab='list',curModal='',webPort=29870,
-    ver={c:{l:'-',r:'-'},s:{l:'-',r:'-'}},
-    tabs={list:'vnt_list',info:'vnt_info',route:'vnt_route',cmd:'vnt_cmd'},
-    cfg={c:{icon:'📡',name:'vnt-cli',type:'client'},s:{icon:'🖥️',name:'vnts',type:'server'}};
+L='<span class="spin">🔄</span> 加载中...',
+curTab='list',curModal='',webPort=29870,spinEl=null,
+ver={c:{l:'-',r:'-'},s:{l:'-',r:'-'}},
+tabs={list:'vnt_list',info:'vnt_info',route:'vnt_route',chart:'vnt_chart',cmd:'vnt_cmd'},
+cfg={c:{icon:'📡',name:'vnt-cli',type:'client'},s:{icon:'🖥️',name:'vnts',type:'server'}},
+winState={w:800,h:600,l:'',t:'',isCenter:true,isFull:false};
 
 function ajax(u,d,cb){var x=new XMLHttpRequest();x.open(d?'POST':'GET',u);if(d)x.setRequestHeader('Content-Type','application/x-www-form-urlencoded');x.onload=function(){cb&&cb(x.status==200?x.responseText:null)};x.send(d)}
 function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},3000)}
-function spin(e,on){e&&e.classList.toggle('spin',on)}
+function spin(e,on){if(e)e.classList.toggle('spin',on)}
+
+function processTableColors(){
+    var cells=document.querySelectorAll('.dtable td, .dtable tr');
+    if(cells.length==0) return;
+    for(var i=0;i<cells.length;i++){
+        var el=cells[i];
+        var t=el.textContent||el.innerText;
+        if(t.indexOf('在线')>-1||t.indexOf('●运行中')>-1||t.indexOf('Running')>-1){
+            el.style.color='var(--c-on)';
+        } else if(t.indexOf('离线')>-1||t.indexOf('●离线')>-1||t.indexOf('Offline')>-1||t.indexOf('stopped')>-1){
+            el.style.color='var(--c-off)';
+        }
+        var ms=t.match(/(\d+)\s*ms/);
+        if(ms){
+            var v=parseInt(ms[1]);
+            if(v<100) el.style.color='var(--c-on)';
+            else if(v<300) el.style.color='var(--c-warn)';
+            else el.style.color='var(--c-off)';
+        }
+    }
+}
+
 function row(l,v,id,cls){return '<div class="info-row"><span class="l">'+l+'</span><span class="v'+(cls?' '+cls:'')+'"'+(id?' id="'+id+'"':'')+'>'+v+'</span></div>'}
 
 function initCards(){
@@ -89,27 +141,27 @@ function initCards(){
         if(k=='s')h+='<span title="Web管理" id="web_btn" style="display:none" onclick="openWeb()">🏠</span>';
         h+='<span title="重启" onclick="restart(\''+c.type+'\',this)">🔄</span></div></div><div class="card-body">';
         h+=row('状态','-',k+'_st');
-        h+=row('已运行','-',k+'_time');
-        h+=row('资源','-',k+'_res');
+        h+=row('运行时长','-',k+'_time');
+        h+=row('资源占用','-',k+'_res');
         h+='<div class="info-row"><span class="l">版本</span><span class="v"><span id="'+k+'_ver" class="link" onclick="showUpdate(\''+c.type+'\')">-</span></span></div>';
         h+='</div></div></div>';
     });
     $('status_cards').innerHTML=h;
-    
+  
     h='';
-    [{k:'c',t:'Token',m:'接口模式',i:'虚拟IP',x:'服务器'},{k:'s',t:'监听端口',m:'Token白名单',i:'DHCP网关',x:'子网掩码'}].forEach(function(o){
+    [{k:'c',t:'Token',m:'接口模式',i:'虚拟IP',x:'服务器地址'},{k:'s',t:'监听端口',m:'Token白名单',i:'DHCP网关',x:'子网掩码'}].forEach(function(o){
         var c=cfg[o.k];
-        h+='<div class="col"><div class="card"><div class="card-head"><span>'+c.icon+' '+(o.k=='c'?'客户端':'服务端')+'设置</span><div class="icons"><span title="设置" onclick="showSettings(\''+c.type+'\',this)">⚙️</span></div></div><div class="card-body">';
+        h+='<div class="col"><div class="card"><div class="card-head"><span>'+c.icon+' '+(o.k=='c'?'客户端':'服务端')+'配置</span><div class="icons"><span title="设置" onclick="showSettings(\''+c.type+'\',this)">⚙️</span></div></div><div class="card-body">';
         h+=row(o.t,'-',o.k+'_a');h+=row(o.m,'-',o.k+'_b');h+=row(o.i,'-',o.k+'_c');h+=row(o.x,'-',o.k+'_d');
         h+='</div></div></div>';
     });
     $('config_cards').innerHTML=h;
-    
-    h='';['设备列表','连接信息','路由表','启动参数'].forEach(function(n,i){
-        var t=['list','info','route','cmd'][i];
-        h+='<button class="btn'+(i==0?' active':'')+'" data-tab="'+t+'" onclick="switchTab(\''+t+'\')">'+n+'</button>';
+  
+    h='';['设备列表','连接信息','路由表','流量统计','启动参数'].forEach(function(n,i){
+        var t=['list','info','route','chart','cmd'][i];
+        h+='<button class="btn'+(i==0?' active':'')+'" data-target="'+t+'" onclick="switchTab(\''+t+'\')">'+n+'</button>';
     });
-    h+='<button class="btn btn-icon" onclick="refreshTab(this.querySelector(\'span\'))"><span>🔄</span></button>';
+    h+='<button class="btn-icon" onclick="refreshTab(this)"><span>🔄</span></button>';
     $('tab_bar').innerHTML=h;
 }
 
@@ -118,9 +170,11 @@ function status(){
         if(!r)return;var d=JSON.parse(r);
         ['c','s'].forEach(function(k){
             var run=k=='c'?d.crunning:d.srunning;
-            $(k+'_st').innerHTML=run?'<span class="on">● 运行中</span>':'<span class="off">● 已停止</span>';
+            var cls=run?'on':'off';
+            var txt=run?'● 运行中':'● 已停止';
+            $(k+'_st').innerHTML='<span class="'+cls+'">'+txt+'</span>';
             $(k+'_time').textContent=run?(k=='c'?d.vntsta:d.vntsta2):'-';
-            $(k+'_res').textContent=run?'CPU:'+(k=='c'?d.vntcpu:d.vntscpu)+' / 内存:'+(k=='c'?d.vntram:d.vntsram):'-';
+            $(k+'_res').textContent=run?'CPU:'+(k=='c'?d.vntcpu:d.vntscpu)+' 内存:'+(k=='c'?d.vntram:d.vntsram):'-';
             ver[k].l=(k=='c'?d.vnttag:d.vntstag)||'-';
             $(k+'_ver').textContent=ver[k].l+(ver[k].r!='-'?'/'+ver[k].r:'');
         });
@@ -132,7 +186,7 @@ function status(){
         $('s_b').innerHTML=d.white_set?'<span class="on">✓ 已设置</span>':'<span class="off">✗ 未设置</span>';
         $('s_c').textContent=d.subnet;
         $('s_d').textContent=d.netmask;
-        $('web_btn').style.display=d.web==1?'inline':'none';
+        $('web_btn').style.display=d.web==1?'inline-flex':'none';
         webPort=d.port;
     });
 }
@@ -149,47 +203,119 @@ function fetchVer(){
 }
 
 function modal(title,body,foot,icons){
+    var b=$('mbox');
+    resetModal();
     $('m_title').textContent=title;
-    $('m_body').className='mbody'+(body.iframe?' frame':'');
-    $('m_body').innerHTML=body.iframe?'<iframe src="'+body.iframe+'"></iframe>':(body.html||'');
+    var mb=$('m_body');
+    mb.innerHTML='';
+    mb.className='mbody';
     $('m_foot').innerHTML=foot||'';
-    $('m_icons').innerHTML=(icons||'')+'<span onclick="closeModal()">✕</span>';
-    var m=$('modal'),b=m.querySelector('.mbox');
-    m.classList.add('show');
-    b.style.left=(innerWidth-b.offsetWidth)/2+'px';
-    b.style.top=(innerHeight-b.offsetHeight)/2+'px';
+    $('m_icons').innerHTML='<span onclick="toggleFull()">⛶</span>'+(icons||'')+'<span onclick="closeModal()">✕</span>';
+    if(body.iframe){
+        mb.innerHTML='<div id="m_loader" class="empty" style="position:absolute;inset:0;background:var(--bg);z-index:1">'+L+'</div><iframe id="m_iframe" style="width:100%;height:100%;border:none"></iframe>';
+        var ifm=$('m_iframe');
+        ifm.onload=function(){
+            var ld=$('m_loader');if(ld)ld.remove();
+            if(spinEl){spin(spinEl,0);spinEl=null}
+        };
+        ifm.src=body.iframe;
+    }else{
+        mb.innerHTML=body.html||'';
+    }
+    b.classList.add('show');
     initDrag(b);initResize(b);
 }
 
+function resetModal(){
+    var b=$('mbox');
+    b.classList.remove('show');
+    b.style.top='50%';
+    b.style.left='50%';
+    b.style.transform='translate(-50%,-50%)';
+    b.style.width='';
+    b.style.height='';
+    b.style.margin='0';
+    b.style.borderRadius='15px';
+    winState.isFull=false;
+    winState.isCenter=true;
+    winState.l='';winState.t='';winState.w='';winState.h='';
+}
+
 function closeModal(){
-    $('modal').classList.remove('show');
+    resetModal();
     $('m_body').innerHTML='';
+    if(spinEl){spin(spinEl,0);spinEl=null}
     if(curModal=='settings')status();
     curModal='';
 }
 window.closeModal=closeModal;
 
+window.toggleFull=function(){
+    var b=$('mbox');
+    if(!winState.isFull){
+        var rect=b.getBoundingClientRect();
+        winState.w=b.style.width||rect.width+'px';
+        winState.h=b.style.height||rect.height+'px';
+        if(b.style.transform && b.style.transform !== 'none'){
+            winState.isCenter=true;
+            winState.l='';winState.t='';
+        }else{
+            winState.isCenter=false;
+            winState.l=b.style.left;
+            winState.t=b.style.top;
+        }
+        winState.isFull=true;
+        b.style.transform='none';
+        b.style.left='0';
+        b.style.top='0';
+        b.style.width='100vw';
+        b.style.height='100vh';
+        b.style.margin='0';
+        b.style.borderRadius='0';
+    }else{
+        winState.isFull=false;
+        b.style.width=winState.w;
+        b.style.height=winState.h;
+        b.style.borderRadius='15px';
+        if(winState.isCenter){
+            b.style.left='50%';
+            b.style.top='50%';
+            b.style.transform='translate(-50%,-50%)';
+            b.style.margin='0';
+        }else{
+            b.style.transform='none';
+            b.style.left=winState.l;
+            b.style.top=winState.t;
+            b.style.margin='0';
+        }
+    }
+};
+
 function initDrag(b){
     var h=b.querySelector('.mhead'),dragging=false,ox,oy,bx,by;
     function start(e){
-        if(e.target.tagName=='SPAN')return;
-        e.preventDefault();
-        dragging=true;
+        if(e.target.tagName==='SPAN'||e.target.closest('span'))return;
+        if(winState.isFull) return;
+        if(b.style.transform && b.style.transform !== 'none'){
+            var r=b.getBoundingClientRect();
+            b.style.transform='none';
+            b.style.left=r.left+'px';
+            b.style.top=r.top+'px';
+            b.style.margin='0';
+            winState.isCenter=false;
+        }
+        e.preventDefault();dragging=true;
         var p=e.touches?e.touches[0]:e;
-        ox=p.clientX;oy=p.clientY;bx=b.offsetLeft;by=b.offsetTop;
-        document.body.style.overflow='hidden';
+        ox=p.clientX;oy=p.clientY;bx=parseInt(b.style.left)||0;by=parseInt(b.style.top)||0;
     }
     function move(e){
         if(!dragging)return;
         e.preventDefault();
         var p=e.touches?e.touches[0]:e;
-        b.style.left=Math.max(100-b.offsetWidth,Math.min(innerWidth-100,bx+p.clientX-ox))+'px';
-        b.style.top=Math.max(0,Math.min(innerHeight-50,by+p.clientY-oy))+'px';
+        b.style.left=(bx+p.clientX-ox)+'px';
+        b.style.top=(by+p.clientY-oy)+'px';
     }
-    function end(){
-        dragging=false;
-        document.body.style.overflow='';
-    }
+    function end(){dragging=false}
     h.onmousedown=start;h.ontouchstart=start;
     document.addEventListener('mousemove',move);
     document.addEventListener('touchmove',move,{passive:false});
@@ -200,8 +326,16 @@ function initDrag(b){
 function initResize(b){
     var r=b.querySelector('.mresize'),resizing=false,ow,oh,ox,oy;
     function start(e){
-        e.preventDefault();e.stopPropagation();
-        resizing=true;
+        if(winState.isFull) return;
+        if(b.style.transform && b.style.transform !== 'none'){
+            var rect=b.getBoundingClientRect();
+            b.style.transform='none';
+            b.style.left=rect.left+'px';
+            b.style.top=rect.top+'px';
+            b.style.margin='0';
+            winState.isCenter=false;
+        }
+        e.preventDefault();e.stopPropagation();resizing=true;
         var p=e.touches?e.touches[0]:e;
         ow=b.offsetWidth;oh=b.offsetHeight;ox=p.clientX;oy=p.clientY;
     }
@@ -209,7 +343,7 @@ function initResize(b){
         if(!resizing)return;
         e.preventDefault();
         var p=e.touches?e.touches[0]:e;
-        b.style.width=Math.max(320,ow+p.clientX-ox)+'px';
+        b.style.width=Math.max(300,ow+p.clientX-ox)+'px';
         b.style.height=Math.max(200,oh+p.clientY-oy)+'px';
     }
     function end(){resizing=false}
@@ -220,53 +354,65 @@ function initResize(b){
     document.addEventListener('touchend',end);
 }
 
-window.switchTab=function(t){curTab=t;document.querySelectorAll('.btn[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab==t)});refreshTab()};
-window.refreshTab=function(e){spin(e,1);$('tab_content').innerHTML='<div class="empty">'+L+'</div>';ajax('<%=url("admin/vpn/vnt")%>/'+tabs[curTab],0,function(r){$('tab_content').innerHTML=r?JSON.parse(r).html:'<div class="empty">加载失败</div>';spin(e,0)})};
+window.switchTab=function(t){curTab=t;document.querySelectorAll('.btn[data-target]').forEach(function(b){b.classList.toggle('active',b.dataset.target==t)});refreshTab()};
+
+window.refreshTab=function(btn){
+    if(btn)spin(btn.querySelector('span'),1);
+    $('tab_content').innerHTML='<div class="empty">'+L+'</div>';
+    ajax('<%=url("admin/vpn/vnt")%>/'+tabs[curTab],0,function(r){
+        $('tab_content').innerHTML=r?JSON.parse(r).html:'<div class="empty">加载失败</div>';
+        processTableColors();
+        if(btn)spin(btn.querySelector('span'),0);
+    })
+};
 
 window.showLog=function(t){
     curModal=t;var k=t=='client'?'c':'s';
-    modal(cfg[k].name+' 日志',{html:'<pre id="log_pre">'+L+'</pre>'},'<button class="btn" onclick="clearLog()">清除日志</button>','<span onclick="refreshLog(this)">🔄</span>');
+    modal(cfg[k].name+' 日志',{html:'<pre id="log_pre" style="width:100%;height:100%;margin:0;">'+L+'</pre>'},'<button class="btn-modal primary" onclick="clearLog()">清除日志</button>','<span onclick="refreshLog(this)">🔄</span>');
     refreshLog();
 };
 window.refreshLog=function(e){
-    spin(e,1);
+    if(e)spin(e,1);
     ajax('<%=url("admin/vpn/vnt")%>/'+(curModal=='client'?'get_log':'get_log2'),0,function(r){
-        var p=$('log_pre');if(p){p.textContent=r||'暂无日志';p.scrollTop=9e9}spin(e,0);
+        var p=$('log_pre');if(p){p.textContent=r||'暂无日志';p.scrollTop=9e9}if(e)spin(e,0);
     });
 };
 window.clearLog=function(){ajax('<%=url("admin/vpn/vnt")%>/'+(curModal=='client'?'clear_log':'clear_log2'),0,function(){refreshLog();toast('日志已清除')})};
 
 window.showSettings=function(t,e){
-    spin(e,1);curModal='settings';var k=t=='client'?'c':'s';
+    var target=e.currentTarget?e.currentTarget:e;
+    if(!target.querySelector('.spin')){spin(target,1);spinEl=target;}
+    curModal='settings';var k=t=='client'?'c':'s';
     modal(cfg[k].name+' 设置',{iframe:'<%=url("admin/vpn/vnt")%>/popup_'+(t=='client'?'client':'server')});
-    $('m_body').querySelector('iframe').onload=function(){spin(e,0)};
 };
 
 window.restart=function(t,e){
-    spin(e,1);var k=t=='client'?'c':'s';
+    var target=e.currentTarget?e.currentTarget:e;
+    spin(target,1);var k=t=='client'?'c':'s';
     toast(cfg[k].name+' 正在重启...');
-    ajax('<%=url("admin/vpn/vnt/restart")%>','type='+t,function(){setTimeout(function(){status();spin(e,0)},2000)});
+    ajax('<%=url("admin/vpn/vnt/restart")%>','type='+t,function(){setTimeout(function(){status();spin(target,0)},2000)});
 };
 
 window.showUpdate=function(t){
-    curModal='update';var k=t=='client'?'c':'s',name=t=='client'?'vnt':'vnts';
+    curModal='update';var k=t=='client'?'c':'s';
     modal(cfg[k].name+' 更新',{html:'<div class="uinfo" id="u_info">'+L+'</div><div id="u_list"></div>'});
     ajax('<%=url("admin/vpn/vnt/get_update")%>','type='+t,function(r){
         if(!r){$('u_info').textContent='获取失败';return}
         var d=JSON.parse(r);
         $('u_info').innerHTML='<b>最新版本:</b> v'+d.version+'<br><b>包管理器:</b> '+d.mgr+'<br><b>系统架构:</b> '+d.arch;
         if(!d.files||!d.files.length){$('u_list').innerHTML='<div class="empty">未找到安装包</div>';return}
-        var h='';d.files.forEach(function(f){h+='<div class="pkg" onclick="installPkg(\''+t+'\',\''+f+'\')">'+f+'</div>'});
+        var h='';d.files.forEach(function(f){h+='<div class="pkg" onclick="installPkg(\''+t+'\',\''+f+'\')"><span>'+f+'</span><span>⬇️</span></div>'});
         $('u_list').innerHTML=h;
     });
 };
 
 window.installPkg=function(t,f){
     if(!confirm('确定安装 '+f+' ?'))return;
-    $('u_list').innerHTML = '<div style="text-align:center; padding:40px; color: #333">' + L.replace('加载中','下载安装中') + '</div>';
+    $('u_list').innerHTML = '<div class="empty"><span class="spin">🔄</span> 下载安装中...</div>';
     ajax('<%=url("admin/vpn/vnt/do_install")%>','type='+t+'&file='+encodeURIComponent(f),function(r){
         var d=r?JSON.parse(r):{status:'error',msg:'请求失败'};
-        $('u_list').innerHTML='<div class="empty" style="color:'+(d.status=='ok'?'#28a745':'#dc3545')+'">'+(d.status=='ok'?'✓ 安装完成<pre>'+d.msg+'</pre>':'✗ '+d.msg)+'</div>';
+        var color=d.status=='ok'?'var(--c-on)':'var(--c-off)';
+        $('u_list').innerHTML='<div class="empty" style="color:'+color+'">'+(d.status=='ok'?'✓ 安装完成<pre style="width:100%">'+d.msg+'</pre>':'✗ '+d.msg)+'</div>';
         if(d.status=='ok')setTimeout(status,2000);
     });
 };
