@@ -3,28 +3,21 @@ name: List Files
 on:
   workflow_dispatch:
 
-env:
-  REPO: https://github.com/immortalwrt/luci.git
-  BRANCH: master
-
 jobs:
   list:
     runs-on: ubuntu-latest
     steps:
       - name: Clone and List Files
         run: |
-          # 稀疏克隆
-          git clone --depth 1 --filter=blob:none --sparse $REPO repo
-          cd repo
-          
-          # 匹配所有 bootstrap 相关主题
-          git sparse-checkout set themes/luci-theme-bootstrap themes/luci-theme-bootstrap-light themes/luci-theme-bootstrap-dark
+          git clone --depth 1 https://github.com/immortalwrt/luci.git repo
+          cd repo/themes/luci-theme-bootstrap
           
           echo "========== 📁 文件结构 =========="
-          find themes -type f | sort
+          find . -type f | sed 's|^\./||' | sort
           
           echo ""
           echo "========== 🔗 原始链接 =========="
-          for file in $(find themes -type f | sort); do
-            echo "https://raw.githubusercontent.com/immortalwrt/luci/$BRANCH/$file"
+          BASE="https://raw.githubusercontent.com/immortalwrt/luci/master/themes/luci-theme-bootstrap"
+          find . -type f | sed 's|^\./||' | sort | while read f; do
+            echo "$BASE/$f"
           done
