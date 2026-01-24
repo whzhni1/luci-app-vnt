@@ -1,180 +1,297 @@
 <!DOCTYPE html>
-<html><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>vnts 设置</title>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>vnts 服务端设置</title>
 <style>
+:root{
+    --bg:#e9ecef;
+    --text-main:#333;
+    --shadow-out:7px 7px 12px rgba(0,0,0,.4),-7px -7px 12px rgba(255,255,255,.9);
+    --shadow-in:inset -7px -7px 12px rgba(255,255,255,.9),inset 7px 7px 12px rgba(0,0,0,.4);
+    --c-link:#1677ff;
+    --radius:8px
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f5f5f5;color:#333}
-.tabs{display:flex;background:#4a90d9}
-.tab{padding:12px 24px;color:rgba(255,255,255,.8);cursor:pointer;font-weight:500;border-bottom:3px solid transparent}
-.tab:hover{background:rgba(255,255,255,.1);color:#fff}
-.tab.active{color:#fff;border-bottom-color:#fff;background:rgba(255,255,255,.15)}
-.content{display:none;padding:20px;max-height:calc(100vh - 120px);overflow-y:auto}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:transparent;color:var(--text-main);min-height:100vh}
+fieldset{border:none;padding:0;margin:0}
+legend{font-size:0}
+.tabs{margin-bottom:20px;display:flex;gap:15px}
+.tab{padding:10px 24px;border:none;border-radius:var(--radius);background:var(--bg);color:#666;cursor:pointer;font-weight:500;box-shadow:var(--shadow-out);transition:.2s all}
+.tab:hover{color:var(--c-link)}
+.tab.active{color:var(--c-link);box-shadow:var(--shadow-in)}
+.content{display:none;padding:0;animation:fadeIn .3s ease}
 .content.active{display:block}
-.form-group{margin-bottom:16px}
-.form-group>label{display:block;font-weight:500;margin-bottom:6px;color:#333}
-.form-group input[type="text"],.form-group input[type="password"],.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1px solid #ccc;border-radius:4px;font-size:14px}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#4a90d9;outline:none}
-.form-group textarea{resize:vertical;min-height:80px;font-family:monospace;font-size:12px}
-.form-row{display:flex;gap:15px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:13px;color:#666;margin-bottom:8px;font-weight:500}
+.form-group input[type="text"],.form-group input[type="password"],.form-group textarea,.form-group select{
+    width:100%;padding:12px 15px;border:none;border-radius:var(--radius);
+    background:var(--bg);color:var(--text-main);box-shadow:var(--shadow-in);
+    font-size:14px;outline:none;transition:.2s all;font-family:inherit
+}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{
+    box-shadow:var(--shadow-in),inset 0 0 0 2px rgba(22,119,255,0.1)
+}
+.form-group select{-webkit-appearance:none;appearance:none}
+.form-row{display:flex;gap:20px}
 .form-row .form-group{flex:1}
-.form-check{display:flex;align-items:center;gap:8px;padding:8px 0}
-.form-check input[type="checkbox"]{width:18px;height:18px}
-.form-tip{font-size:12px;color:#888;margin-top:4px}
-.dlist{margin-top:8px}
-.dlist-item{display:flex;gap:8px;margin-bottom:6px}
-.dlist-item input{flex:1}
-.dlist-item .del{padding:8px 12px;background:#dc3545;border:none;color:#fff;border-radius:4px;cursor:pointer}
-.btn-add{padding:6px 12px;background:#6c757d;border:none;color:#fff;border-radius:4px;cursor:pointer;font-size:12px;margin-top:4px}
-.footer{padding:15px 20px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0}
-.btn{padding:10px 24px;border:none;border-radius:5px;cursor:pointer;font-weight:600;font-size:14px}
-.btn-primary{background:linear-gradient(180deg,#4a90d9,#357abd);color:#fff}
-.btn-primary:hover{background:linear-gradient(180deg,#5a9fe9,#4a90d9)}
-.btn-secondary{background:#6c757d;color:#fff}
-.loading{text-align:center;padding:40px;color:#888}
+.form-check{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:6px 0}
+.form-check input[type="checkbox"]{width:18px;height:18px;accent-color:var(--c-link);cursor:pointer}
+.form-check label{cursor:pointer;font-size:14px}
+.form-tip{font-size:12px;color:#999;margin-top:5px;line-height:1.4}
+.btn{padding:10px 24px;border:none;border-radius:10px;background:var(--bg);color:var(--text-main);cursor:pointer;box-shadow:var(--shadow-out);outline:none;font-weight:500;transition:.2s all;font-size:14px}
+.btn:hover{color:var(--c-link);transform:translateY(-2px)}
+.btn:active,.btn.active{box-shadow:var(--shadow-in);transform:translateY(0)}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-primary{color:var(--c-link);font-weight:600}
+.btn-danger{color:#ff4d4f}
+.btn-sm{padding:6px 12px;border-radius:6px;font-size:12px}
+.dlist{margin-top:8px;border-radius:var(--radius);background:rgba(0,0,0,.02);padding:10px;border:1px solid rgba(0,0,0,.03)}
+.dlist-item{display:flex;gap:10px;margin-bottom:8px}
+.dlist-item:last-child{margin-bottom:0}
+.dlist-item input,.dlist-item textarea{flex:1}
+.dlist-item .del{width:36px;height:36px;border-radius:6px;background:var(--bg);color:#ff4d4f;border:none;cursor:pointer;box-shadow:var(--shadow-out);display:flex;align-items:center;justify-content:center;transition:.2s all}
+.dlist-item .del:hover{background:#ff4d4f;color:#fff;transform:scale(1.05)}
+.footer{margin-top:30px;padding-top:20px;border-top:1px solid rgba(0,0,0,.05);display:flex;justify-content:flex-end;gap:15px;align-items:center}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 </style>
-</head><body>
+</head>
+<body>
+
 <div class="tabs">
-    <div class="tab active" onclick="switchTab(0)">基本设置</div>
-    <div class="tab" onclick="switchTab(1)">高级设置</div>
+    <div class="tab active" data-tab="0">基本设置</div>
+    <div class="tab" data-tab="1">高级设置</div>
 </div>
 
-<div class="content active" id="tab0">
-    <div class="form-check"><input type="checkbox" id="enabled"><label for="enabled">启用 vnts</label></div>
-    <div class="form-row">
-        <div class="form-group"><label>监听端口</label><input type="text" id="server_port" placeholder="29872"></div>
-        <div class="form-group"><label>DHCP网关</label><input type="text" id="subnet" placeholder="10.26.0.1"></div>
-    </div>
-    <div class="form-group"><label>子网掩码</label><input type="text" id="servern_netmask" placeholder="255.255.255.0"></div>
-    <div class="form-group">
-        <label>Token白名单</label>
-        <div class="dlist" id="white_Token_list"></div>
-        <button type="button" class="btn-add" onclick="addItem('white_Token')">+ 添加</button>
-        <div class="form-tip">留空则不限制，所有token都可连接</div>
-    </div>
-    <div class="form-check"><input type="checkbox" id="web" onchange="toggleWeb()"><label for="web">启用WEB管理</label></div>
-    <div id="web_wrap" style="display:none">
-        <div class="form-row">
-            <div class="form-group"><label>WEB端口</label><input type="text" id="web_port" placeholder="29870"></div>
-            <div class="form-group"><label>帐号</label><input type="text" id="webuser" placeholder="admin"></div>
+<form id="mainForm" onsubmit="return false;">
+    <div class="content active" id="tab0">
+        <div class="form-check"><input type="checkbox" id="enabled"><label for="enabled">启用 vnts 服务端</label></div>
+        
+        <div class="form-group">
+            <label>本地监听端口</label>
+            <input type="text" id="server_port" placeholder="29872">
+            <div class="form-tip">服务端监听的端口号</div>
         </div>
-        <div class="form-group"><label>密码</label><input type="password" id="webpass" placeholder="admin"></div>
-        <div class="form-check"><input type="checkbox" id="web_wan"><label for="web_wan">允许外网访问WEB</label></div>
+        
+        <div class="form-group">
+            <label>Token白名单</label>
+            <div class="dlist" id="white_Token_list"></div>
+            <button type="button" class="btn btn-sm" id="btnAddWhiteToken">+ 添加</button>
+            <div class="form-tip">留空则所有token都可连接，填写后只允许指定token</div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>DHCP网关</label>
+                <input type="text" id="subnet" placeholder="10.10.0.1">
+                <div class="form-tip">分配给客户端的IP网段</div>
+            </div>
+            <div class="form-group">
+                <label>子网掩码</label>
+                <input type="text" id="servern_netmask" placeholder="255.255.255.0">
+            </div>
+        </div>
+        
+        <div class="form-check">
+            <input type="checkbox" id="web" data-toggle="web_wrap" checked onchange="handleToggle(this)">
+            <label for="web">启用WEB管理</label>
+        </div>
+        <div id="web_wrap">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>WEB端口</label>
+                    <input type="text" id="web_port" placeholder="29870">
+                </div>
+                <div class="form-group">
+                    <label>帐号</label>
+                    <input type="text" id="webuser" placeholder="admin">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="webpass" placeholder="admin">
+                </div>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" id="web_wan">
+                <label for="web_wan">允许外网访问WEB管理</label>
+            </div>
+        </div>
+        
+        <div class="form-check">
+            <input type="checkbox" id="logs">
+            <label for="logs">启用日志</label>
+        </div>
     </div>
-    <div class="form-check"><input type="checkbox" id="logs"><label for="logs">启用日志</label></div>
-</div>
 
-<div class="content" id="tab1">
-    <div class="form-group">
-        <label>程序路径</label>
-        <input type="text" id="vntsbin" placeholder="/usr/bin/vnts">
+    <div class="content" id="tab1">
+        <div class="form-group">
+            <label>程序路径</label>
+            <input type="text" id="vntsbin" placeholder="/usr/bin/vnts">
+            <div class="form-tip">自定义vnts的存放路径</div>
+        </div>
+        
+        <div class="form-check">
+            <input type="checkbox" id="sfinger">
+            <label for="sfinger">数据指纹校验</label>
+        </div>
+        <div class="form-tip" style="margin-bottom:16px">开启后只转发指纹正确的数据包，客户端也需开启</div>
+        
+        <div class="form-group">
+            <label>Public 公钥</label>
+            <textarea id="public_key" placeholder="留空使用默认密钥"></textarea>
+            <div class="form-tip">服务端密钥用于加密客户端和服务端之间的通信</div>
+        </div>
+        
+        <div class="form-group">
+            <label>Private 私钥</label>
+            <textarea id="private_key" placeholder="留空使用默认密钥"></textarea>
+            <div class="form-tip">修改密钥后客户端需要重启才能正常连接</div>
+        </div>
     </div>
-    <div class="form-check"><input type="checkbox" id="sfinger"><label for="sfinger">数据指纹校验</label></div>
-    <div class="form-group">
-        <label>公钥 (public_key.pem)</label>
-        <textarea id="public_key" rows="4" placeholder="留空使用自动生成的密钥"></textarea>
-        <div class="form-tip">服务端密钥在程序同目录/key里，可替换成自定义密钥对</div>
-    </div>
-    <div class="form-group">
-        <label>私钥 (private_key.pem)</label>
-        <textarea id="private_key" rows="4" placeholder="留空使用自动生成的密钥"></textarea>
-        <div class="form-tip">修改密钥后客户端需重启才能正常连接</div>
-    </div>
-</div>
 
-<div class="footer">
-    <button class="btn btn-secondary" onclick="parent.closeModal('settings')">取消</button>
-    <button class="btn btn-primary" onclick="saveConfig()">保存并应用</button>
-</div>
+    <div class="footer">
+        <button class="btn btn-primary" type="submit" id="saveBtn">保存配置</button>
+    </div>
+</form>
 
 <script>
-var cfg = {};
-function $(id) { return document.getElementById(id) }
-function ajax(url, cb, data) {
-    var x = new XMLHttpRequest();
-    x.open(data ? 'POST' : 'GET', url, true);
-    if (data) x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    x.onload = function() { cb && cb(x.responseText) };
-    x.send(data);
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)},$$=function(s){return document.querySelectorAll(s)};
+var originalConfig={};
+
+var fields={
+    enabled:'c',server_port:'',subnet:'',servern_netmask:'',
+    web:'c',web_port:'',webuser:'',webpass:'',web_wan:'c',logs:'c',
+    vntsbin:'',sfinger:'c',public_key:'',private_key:''
+};
+var lists=['white_Token'];
+
+function handleToggle(el){
+    var t=el.dataset.toggle;if(!t)return;
+    var v=el.type==='checkbox'?el.checked:el.value;
+    $(t).style.display=v?'':'none';
 }
 
-function switchTab(i) {
-    document.querySelectorAll('.tab').forEach(function(t, j) { t.classList.toggle('active', j == i) });
-    document.querySelectorAll('.content').forEach(function(c, j) { c.classList.toggle('active', j == i) });
+function switchTab(i){
+    $$('.tab').forEach(function(t,n){t.classList.toggle('active',n==i)});
+    $$('.content').forEach(function(c,n){c.classList.toggle('active',n==i)});
 }
 
-function toggleWeb() { $('web_wrap').style.display = $('web').checked ? 'block' : 'none' }
-
-function addItem(name, val) {
-    var list = $(name + '_list'), div = document.createElement('div');
-    div.className = 'dlist-item';
-    div.innerHTML = '<input type="text" value="' + (val || '') + '"><button type="button" class="del" onclick="this.parentNode.remove()">✕</button>';
-    list.appendChild(div);
+function windowClose(){
+    if(window.parent&&window.parent.closeModal)window.parent.closeModal('server_settings');
+    else window.close();
 }
 
-function getListValues(name) {
-    var vals = [];
-    $(name + '_list').querySelectorAll('input').forEach(function(inp) { if (inp.value) vals.push(inp.value) });
-    return vals;
+function addItem(n,v){
+    var l=$(n+'_list');
+    if(!l)return;
+    var d=document.createElement('div');
+    d.className='dlist-item';
+    d.innerHTML='<input type="text" data-list="'+n+'" value="'+(v||'')+'"><button type="button" class="del" onclick="this.parentElement.remove()">✕</button>';
+    l.appendChild(d);
 }
 
-function loadConfig() {
-    ajax('<%=url("admin/vpn/vnt/get_config")%>', function(r) {
-        cfg = JSON.parse(r);
-        $('enabled').checked = cfg.s_enabled == '1';
-        $('server_port').value = cfg.s_server_port || '';
-        $('subnet').value = cfg.s_subnet || '';
-        $('servern_netmask').value = cfg.s_servern_netmask || '';
-        $('web').checked = cfg.s_web == '1'; toggleWeb();
-        $('web_port').value = cfg.s_web_port || '';
-        $('webuser').value = cfg.s_webuser || '';
-        $('webpass').value = cfg.s_webpass || '';
-        $('web_wan').checked = cfg.s_web_wan == '1';
-        $('logs').checked = cfg.s_logs == '1';
-        $('vntsbin').value = cfg.s_vntsbin || '';
-        $('sfinger').checked = cfg.s_sfinger == '1';
-        
-        var wt = cfg.s_white_Token;
-        if (wt) {
-            if (typeof wt == 'string') addItem('white_Token', wt);
-            else if (Array.isArray(wt)) wt.forEach(function(v) { addItem('white_Token', v) });
-        } else {
-            addItem('white_Token');
-        }
+function getList(n){
+    var a=[];
+    $$('#'+n+'_list input').forEach(function(e){var v=e.value.trim();if(v)a.push(v)});
+    return a
+}
+
+function applyConfig(data){
+    Object.keys(fields).forEach(function(id){
+        var el=$(id);if(!el)return;
+        var v=data['s_'+id],d=fields[id];
+        if(d==='c')el.checked=v==='1';else el.value=v||'';
+        if(el.dataset.toggle)handleToggle(el);
     });
     
-    ajax('<%=url("admin/vpn/vnt/get_keys")%>', function(r) {
-        try {
-            var keys = JSON.parse(r);
-            $('public_key').value = keys.public_key || '';
-            $('private_key').value = keys.private_key || '';
-        } catch(e) {}
+    lists.forEach(function(n){
+        var l=$(n+'_list');
+        if(l)l.innerHTML='';
+        var v=data['s_'+n];
+        if(Array.isArray(v)){
+            v.forEach(function(x){addItem(n,x)});
+        }
+        if(!l||!l.children.length)addItem(n);
     });
 }
 
-function saveConfig() {
-    var data = {
-        enabled: $('enabled').checked ? '1' : '0',
-        server_port: $('server_port').value,
-        subnet: $('subnet').value,
-        servern_netmask: $('servern_netmask').value,
-        white_Token: getListValues('white_Token'),
-        web: $('web').checked ? '1' : '0',
-        web_port: $('web_port').value,
-        webuser: $('webuser').value,
-        webpass: $('webpass').value,
-        web_wan: $('web_wan').checked ? '1' : '0',
-        logs: $('logs').checked ? '1' : '0',
-        vntsbin: $('vntsbin').value,
-        sfinger: $('sfinger').checked ? '1' : '0',
-        public_key: $('public_key').value,
-        private_key: $('private_key').value
+function loadConfig(){
+    var x=new XMLHttpRequest();
+    x.open('GET','<%=url("admin/vpn/vnt/get_config")%>',true);
+    x.onload=function(){
+        if(x.status===200){
+            try{
+                var data=JSON.parse(x.responseText);
+                originalConfig=data;
+                applyConfig(data);
+            }catch(e){console.error(e)}
+        }
     };
-    ajax('<%=url("admin/vpn/vnt/save_server")%>', function() {
-        parent.closeModal('settings');
-    }, 'data=' + encodeURIComponent(JSON.stringify(data)));
+    x.send();
 }
 
+function saveConfig(){
+    var btn=$('saveBtn'),t=btn.textContent;
+    btn.disabled=true;btn.textContent='保存中...';
+    var fd=new FormData();
+    Object.keys(fields).forEach(function(id){
+        var el=$(id);if(!el)return;
+        fd.append(id,fields[id]==='c'?(el.checked?'1':'0'):el.value);
+    });
+    lists.forEach(function(n){getList(n).forEach(function(v,i){fd.append(n+'.'+(i+1),v)})});
+    
+    var x=new XMLHttpRequest();
+    x.open('POST','<%=url("admin/vpn/vnt/save_server")%>',true);
+    x.onload=function(){
+        btn.disabled=false;btn.textContent=t;
+        if(x.status===200){
+            showToast('配置已保存并应用','success');
+            setTimeout(windowClose,1500);
+        }else{
+            showToast('保存失败，请重试','error');
+        }
+    };
+    x.onerror=function(){btn.disabled=false;btn.textContent=t;showToast('网络错误','error')};
+    x.send(fd);
+}
+
+function showToast(msg,type){
+    if(window.parent&&window.parent.showToast){
+        window.parent.showToast(msg,type);
+        return;
+    }
+    
+    var t=document.createElement('div');
+    t.textContent=msg;
+    t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg);color:var(--text-main);padding:12px 24px;border-radius:50px;box-shadow:0 5px 15px rgba(0,0,0,.2);z-index:1000;opacity:0;transition:opacity .3s;font-weight:500;'+(type==='success'?'color:var(--c-link)':'color:#ff4d4f');
+    document.body.appendChild(t);
+    requestAnimationFrame(function(){t.style.opacity='1'});
+    setTimeout(function(){t.style.opacity='0';setTimeout(function(){t.remove()},300)},3000);
+}
+
+document.addEventListener('click',function(e){
+    var t=e.target;
+    if(t.dataset.tab!==undefined){
+        switchTab(+t.dataset.tab);
+        return;
+    }
+    if(t.id==='btnAddWhiteToken'){addItem('white_Token');return}
+});
+
+document.addEventListener('change',function(e){
+    if(e.target.dataset.toggle)handleToggle(e.target);
+});
+
+document.getElementById('mainForm').addEventListener('submit',function(e){
+    e.preventDefault();saveConfig();
+});
+
 loadConfig();
+})();
 </script>
-</body></html>
+</body>
+</html>
