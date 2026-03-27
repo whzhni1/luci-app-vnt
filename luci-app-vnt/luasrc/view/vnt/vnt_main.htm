@@ -48,7 +48,7 @@ body{background:var(--bg);color:var(--text-main);font-family:-apple-system,Blink
 .dtable th{font-weight:600;border-bottom:2px solid rgba(0,0,0,.05)}
 .dtable tr{border-bottom:1px solid rgba(0,0,0,.03)}
 code{background:transparent;color:inherit;border:none;padding:0;margin:0;box-shadow:none;font-family:inherit;font-size:inherit;display:inline}
-textarea,input,select,pre{background:var(--bg);color:var(--text-main);border:none;outline:none;padding:15px;border-radius:8px;width:100%;box-shadow:var(--shadow-in);font-family:Consolas,monospace,"Courier New";margin:10px 0;resize:vertical}
+textarea,input,pre{background:var(--bg);color:var(--text-main);border:none;outline:none;padding:15px;border-radius:8px;width:100%;box-shadow:var(--shadow-in);font-family:Consolas,monospace,"Courier New";margin:10px 0;resize:vertical}
 .empty{display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;min-height:350px;color:#999;width:100%;background:rgba(255,255,255,.4);border-radius:15px;box-shadow:var(--shadow-in)}
 .mbox{display:none;position:fixed;background:var(--bg);border-radius:15px;box-shadow:10px 10px 20px rgba(0,0,0,.4),-10px -10px 20px rgba(255,255,255,.9);z-index:9999;width:850px;height:650px;max-width:95vw;max-height:90vh;flex-direction:column;top:50%;left:50%;transform:translate(-50%,-50%);border:none}
 .mbox.show{display:flex}
@@ -77,6 +77,17 @@ textarea,input,select,pre{background:var(--bg);color:var(--text-main);border:non
 .btn-modal:hover{color:var(--c-link)}
 .btn-modal.primary{color:var(--c-link);font-weight:600}
 .btn-modal:active{box-shadow:var(--shadow-in)}
+.custom-select{position:relative;display:inline-block;width:22%;margin-top:5px;}
+.select-input{display:flex;justify-content:space-between;align-items:center;padding:10px 15px;border-radius:10px;background:var(--bg);color:var(--text-main);box-shadow: var(--shadow-out);cursor: pointer;user-select: none;transition: .2s all;font-size: 14px;font-weight: 500;}
+.select-input:hover {color: var(--c-link);}
+.select-input.active {box-shadow: var(--shadow-in);}
+.select-input::after {content: "▼";font-size: 10px;margin-left: 10px;opacity: 0.6;transition: transform 0.2s;}
+.select-input.active::after {transform: rotate(180deg);}
+.select-options {position: absolute;top: 100%;left: 0;right: 0;z-index: 99;margin-top: 8px;padding: 10px 0;background: var(--bg);border-radius: 10px;box-shadow: var(--shadow-out);opacity: 0;visibility: hidden;transform: translateY(-10px);transition: all 0.3s ease;max-height: 250px;overflow-y: auto;}
+.select-options.show {opacity: 1;visibility: visible;transform: translateY(0);}
+.select-options .option {padding: 10px 15px;cursor: pointer;transition: background 0.2s, color 0.2s;}
+.select-options .option:hover {background: rgba(0, 0, 0, 0.05);color: var(--c-link);}
+
 @media(max-width:768px){.mbox{width:95vw;height:80vh}.vnt-wrap{padding:10px}}
 @keyframes slideIn{from{opacity:0;transform:translate(-50%,-50%) scale(0.8)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
@@ -89,337 +100,444 @@ textarea,input,select,pre{background:var(--bg);color:var(--text-main);border:non
         <div class="box" id="tab_content"></div>
     </div>
     <div class="row" id="config_cards"></div>
-    <div class="about">ℹ️ <b>VNT</b> - 简便高效的异地组网工具 | <a href="http://rustvnt.com" target="_blank">官网</a> | <a href="https://github.com/vnt-dev/vnt" target="_blank">GitHub</a> | <a href="https://github.com/vnt-dev/VntApp" target="_blank">GUIApp</a></div>
+    <div class="about">ℹ️ <b>VNT</b> - 简便高效的异地组网工具 | <a href="http://rustvnt.com" target="_blank">官网</a> | <a href="https://github.com/vnt-dev/vnt" target="_blank">GitHub</a> | <a href="https://github.com/vnt-dev/VntApp" target="_blank">GUIApp</a> | <a href="https://github.com/whzhni1/luci-app-vnt" target="_blank">Luci</a></div>
 </div>
 
-<div class="mbox" id="mbox"><div class="mhead"><h3 id="m_title"></h3><div class="icons" id="m_icons"></div></div><div class="mbody" id="m_body"></div><div class="mfoot" id="m_foot"></div><div class="mresize"></div></div>
+<div class="mbox" id="mbox">
+    <div class="mhead">
+        <h3 id="m_title"></h3>
+        <div class="icons" id="m_icons"></div>
+    </div>
+    <div class="mbody" id="m_body"></div>
+    <div class="mfoot" id="m_foot"></div>
+    <div class="mresize"></div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
 (function(){
-var $=function(id){return document.getElementById(id)},
-L='<span class="spin">🔄</span> 加载中...',
-curTab='list',curModal='',webPort=29870,spinEl=null,
-ver={c:{l:'-',r:'-'},s:{l:'-',r:'-'}},
-tabs={list:'vnt_list',info:'vnt_info',route:'vnt_route',chart:'vnt_chart',cmd:'vnt_cmd'},
-cfg={c:{icon:'📡',name:'vnt-cli',type:'client'},s:{icon:'🖥️',name:'vnts',type:'server'}},
-winState={w:800,h:600,l:'',t:'',isCenter:true,isFull:false};
+    var $=function(id){return document.getElementById(id)},
+    L='<span class="spin">🔄</span> 加载中...',
+    curTab='list',curModal='',webPort=29870,spinEl=null,
+    ver={c:{l:'-',r:'-'},s:{l:'-',r:'-'}},
+    tabs={list:'vnt_list',info:'vnt_info',route:'vnt_route',chart:'vnt_chart',cmd:'vnt_cmd'},
+    cfg={c:{icon:'📡',name:'vnt-cli',type:'client'},s:{icon:'🖥️',name:'vnts',type:'server'}},
+    winState={w:800,h:600,l:'',t:'',isCenter:true,isFull:false},
+    currentMirror = 'gitlab';
 
-function ajax(u,d,cb){var x=new XMLHttpRequest();x.open(d?'POST':'GET',u);if(d)x.setRequestHeader('Content-Type','application/x-www-form-urlencoded');x.onload=function(){cb&&cb(x.status==200?x.responseText:null)};x.send(d)}
-function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},3000)}
-function spin(e,on){if(e)e.classList.toggle('spin',on)}
+    function ajax(u,d,cb){
+        var x=new XMLHttpRequest();
+        x.open(d?'POST':'GET',u);
+        if(d)x.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+        x.onload=function(){cb&&cb(x.status==200?x.responseText:null)};
+        x.send(d)
+    }
 
-function processTableColors(){
-    var cells=document.querySelectorAll('.dtable td, .dtable tr');
-    if(cells.length==0) return;
-    for(var i=0;i<cells.length;i++){
-        var el=cells[i];
-        var t=el.textContent||el.innerText;
-        if(t.indexOf('在线')>-1||t.indexOf('●运行中')>-1||t.indexOf('Running')>-1){
-            el.style.color='var(--c-on)';
-        } else if(t.indexOf('离线')>-1||t.indexOf('●离线')>-1||t.indexOf('Offline')>-1||t.indexOf('stopped')>-1){
-            el.style.color='var(--c-off)';
-        }
-        var ms=t.match(/(\d+)\s*ms/);
-        if(ms){
-            var v=parseInt(ms[1]);
-            if(v<100) el.style.color='var(--c-on)';
-            else if(v<300) el.style.color='var(--c-warn)';
-            else el.style.color='var(--c-off)';
+    function toast(m){
+        var t=$('toast');
+        t.textContent=m;
+        t.classList.add('show');
+        setTimeout(function(){t.classList.remove('show')},3000)
+    }
+
+    function spin(e,on){if(e)e.classList.toggle('spin',on)}
+
+    function processTableColors(){
+        var cells=document.querySelectorAll('.dtable td, .dtable tr');
+        if(cells.length==0) return;
+        for(var i=0;i<cells.length;i++){
+            var el=cells[i];
+            var t=el.textContent||el.innerText;
+            if(t.indexOf('在线')>-1||t.indexOf('●运行中')>-1||t.indexOf('Running')>-1){
+                el.style.color='var(--c-on)';
+            }
+            else if(t.indexOf('离线')>-1||t.indexOf('●离线')>-1||t.indexOf('Offline')>-1||t.indexOf('stopped')>-1){
+                el.style.color='var(--c-off)';
+            }
+            var ms=t.match(/(\d+)\s*ms/);
+            if(ms){
+                var v=parseInt(ms[1]);
+                if(v<100) el.style.color='var(--c-on)';
+                else if(v<300) el.style.color='var(--c-warn)';
+                else el.style.color='var(--c-off)';
+            }
         }
     }
-}
 
-function row(l,v,id,cls){return '<div class="info-row"><span class="l">'+l+'</span><span class="v'+(cls?' '+cls:'')+'"'+(id?' id="'+id+'"':'')+'>'+v+'</span></div>'}
-
-function initCards(){
-    var h='';
-    ['c','s'].forEach(function(k){
-        var c=cfg[k];
-        h+='<div class="col"><div class="card"><div class="card-head"><span>'+c.icon+' '+c.name+' 状态</span><div class="icons">';
-        h+='<span title="日志" onclick="showLog(\''+c.type+'\')">📝</span>';
-        if(k=='s')h+='<span title="Web管理" id="web_btn" style="display:none" onclick="openWeb()">🏠</span>';
-        h+='<span title="重启" onclick="restart(\''+c.type+'\',this)">🔄</span></div></div><div class="card-body">';
-        h+=row('状态','-',k+'_st');
-        h+=row('运行时长','-',k+'_time');
-        h+=row('资源占用','-',k+'_res');
-        h+='<div class="info-row"><span class="l">版本</span><span class="v"><span id="'+k+'_ver" class="link" onclick="showUpdate(\''+c.type+'\')">-</span></span></div>';
-        h+='</div></div></div>';
-    });
-    $('status_cards').innerHTML=h;
-  
-    h='';
-    [{k:'c',t:'Token',m:'接口模式',i:'虚拟IP',x:'服务器地址'},{k:'s',t:'监听端口',m:'Token白名单',i:'DHCP网关',x:'子网掩码'}].forEach(function(o){
-        var c=cfg[o.k];
-        h+='<div class="col"><div class="card"><div class="card-head"><span>'+c.icon+' '+(o.k=='c'?'客户端':'服务端')+'配置</span><div class="icons"><span title="设置" onclick="showSettings(\''+c.type+'\',this)">⚙️</span></div></div><div class="card-body">';
-        h+=row(o.t,'-',o.k+'_a');h+=row(o.m,'-',o.k+'_b');h+=row(o.i,'-',o.k+'_c');h+=row(o.x,'-',o.k+'_d');
-        h+='</div></div></div>';
-    });
-    $('config_cards').innerHTML=h;
-  
-    h='';['设备列表','连接信息','路由表','流量统计','启动参数'].forEach(function(n,i){
-        var t=['list','info','route','chart','cmd'][i];
-        h+='<button class="btn'+(i==0?' active':'')+'" data-target="'+t+'" onclick="switchTab(\''+t+'\')">'+n+'</button>';
-    });
-    h+='<button class="btn-icon" onclick="refreshTab(this)"><span>🔄</span></button>';
-    $('tab_bar').innerHTML=h;
-}
-
-function status(){
-    ajax('<%=url("admin/vpn/vnt/status")%>',0,function(r){
-        if(!r)return;var d=JSON.parse(r);
+    function row(l,v,id,cls){return '<div class="info-row"><span class="l">'+l+'</span><span class="v'+(cls?' '+cls:'')+'"'+(id?' id="'+id+'"':'')+'>'+v+'</span></div>'}
+    function initCards(){
+        var h='';
         ['c','s'].forEach(function(k){
-            var run=k=='c'?d.crunning:d.srunning;
-            var cls=run?'on':'off';
-            var txt=run?'● 运行中':'● 已停止';
-            $(k+'_st').innerHTML='<span class="'+cls+'">'+txt+'</span>';
-            $(k+'_time').textContent=run?(k=='c'?d.vntsta:d.vntsta2):'-';
-            $(k+'_res').textContent=run?'CPU:'+(k=='c'?d.vntcpu:d.vntscpu)+' 内存:'+(k=='c'?d.vntram:d.vntsram):'-';
-            ver[k].l=(k=='c'?d.vnttag:d.vntstag)||'-';
-            $(k+'_ver').textContent=ver[k].l+(ver[k].r!='-'?'/'+ver[k].r:'');
+            var c=cfg[k];
+            h+='<div class="col"><div class="card"><div class="card-head"><span>'+c.icon+' '+c.name+' 状态</span><div class="icons">';
+            h+='<span title="日志" onclick="showLog(\''+c.type+'\')">📝</span>';
+            if(k=='s')h+='<span title="Web管理" id="web_btn" style="display:none" onclick="openWeb()">🌐</span>';
+            h+='<span title="重启" onclick="restart(\''+c.type+'\',this)">🔄</span></div></div><div class="card-body">';
+            h+=row('状态','-',k+'_st');
+            h+=row('运行时长','-',k+'_time');
+            h+=row('资源占用','-',k+'_res');
+            h+='<div class="info-row"><span class="l">版本</span><span class="v"><span id="'+k+'_ver" class="link" onclick="showUpdate(\''+c.type+'\')">-</span></span></div>';
+            h+='</div></div></div>';
         });
-        $('c_a').innerHTML=d.token_set?'<span class="on">✓ 已设置</span>':'<span class="off">✗ 未设置</span>';
-        $('c_b').textContent=d.mode=='static'?'手动指定':'动态分配';
-        $('c_c').textContent=d.ipaddr||'-';
-        $('c_d').textContent=d.vntshost||'-';
-        $('s_a').textContent=d.server_port;
-        $('s_b').innerHTML=d.white_set?'<span class="on">✓ 已设置</span>':'<span class="off">✗ 未设置</span>';
-        $('s_c').textContent=d.subnet;
-        $('s_d').textContent=d.netmask;
-        $('web_btn').style.display=d.web==1?'inline-flex':'none';
-        webPort=d.port;
-    });
-}
-
-function fetchVer(){
-    ['vnt','vnts'].forEach(function(n,i){
-        var k=i==0?'c':'s';
-        ajax('https://gitlab.com/api/v4/projects/whzhni%2F'+n+'/releases',0,function(r){
-            if(!r)return;var m=r.match(/"tag_name":"v([^"]+)"/);
-            ver[k].r=m?m[1]:'-';
-            $(k+'_ver').textContent=ver[k].l+(ver[k].r!='-'?'/'+ver[k].r:'');
+        $('status_cards').innerHTML=h;
+        h='';
+        [{k:'c',t:'Token',m:'接口模式',i:'虚拟IP',x:'服务器地址'},{k:'s',t:'监听端口',m:'Token白名单',i:'DHCP网关',x:'子网掩码'}].forEach(function(o){
+            var c=cfg[o.k];
+            h+='<div class="col"><div class="card"><div class="card-head"><span>'+c.icon+' '+(o.k=='c'?'客户端':'服务端')+'配置</span><div class="icons"><span title="设置" onclick="showSettings(\''+c.type+'\',this)">⚙️</span></div></div><div class="card-body">';
+            h+=row(o.t,'-',o.k+'_a');h+=row(o.m,'-',o.k+'_b');h+=row(o.i,'-',o.k+'_c');h+=row(o.x,'-',o.k+'_d');
+            h+='</div></div></div>';
         });
-    });
-}
-
-function modal(title,body,foot,icons){
-    var b=$('mbox');
-    resetModal();
-    $('m_title').textContent=title;
-    var mb=$('m_body');
-    mb.innerHTML='';
-    mb.className='mbody';
-    $('m_foot').innerHTML=foot||'';
-    $('m_icons').innerHTML='<span onclick="toggleFull()">⛶</span>'+(icons||'')+'<span onclick="closeModal()">✕</span>';
-    if(body.iframe){
-        mb.innerHTML='<div id="m_loader" class="empty" style="position:absolute;inset:0;background:var(--bg);z-index:1">'+L+'</div><iframe id="m_iframe" style="width:100%;height:100%;border:none"></iframe>';
-        var ifm=$('m_iframe');
-        ifm.onload=function(){
-            var ld=$('m_loader');if(ld)ld.remove();
-            if(spinEl){spin(spinEl,0);spinEl=null}
-        };
-        ifm.src=body.iframe;
-    }else{
-        mb.innerHTML=body.html||'';
+        $('config_cards').innerHTML=h;
+        h='';
+        ['设备列表','连接信息','路由表','流量统计','启动参数'].forEach(function(n,i){
+            var t=['list','info','route','chart','cmd'][i];
+            h+='<button class="btn'+(i==0?' active':'')+'" data-target="'+t+'" onclick="switchTab(\''+t+'\')">'+n+'</button>';
+        });
+        h+='<button class="btn-icon" onclick="refreshTab(this)"><span>🔄</span></button>';
+        $('tab_bar').innerHTML=h;
     }
-    b.classList.add('show');
-    initDrag(b);initResize(b);
-}
 
-function resetModal(){
-    var b=$('mbox');
-    b.classList.remove('show');
-    b.style.top='50%';
-    b.style.left='50%';
-    b.style.transform='translate(-50%,-50%)';
-    b.style.width='';
-    b.style.height='';
-    b.style.margin='0';
-    b.style.borderRadius='15px';
-    winState.isFull=false;
-    winState.isCenter=true;
-    winState.l='';winState.t='';winState.w='';winState.h='';
-}
+    function status(){
+        ajax('<%=url("admin/vpn/vnt/status")%>',0,function(r){
+            if(!r)return;
+            var d=JSON.parse(r);
+            if(!window.kernelChecked){
+                var msg = [];
+                if(d.c_missing == 1) msg.push("VNT客户端未安装");
+                if(d.s_missing == 1) msg.push("VNTS服务端未安装");
+                if(msg.length > 0){
+                    if(confirm(msg.join("\n") + "\n\n点击确定前往更新界面下载安装")){
+                        showUpdate(d.c_missing == 1 ? 'client' : 'server');
+                    }
+                }
+                window.kernelChecked = true;
+            }
+            ['c','s'].forEach(function(k){
+                var run=k=='c'?d.crunning:d.srunning;
+                var cls=run?'on':'off';
+                var txt=run?'● 运行中':'● 已停止';
+                $(k+'_st').innerHTML='<span class="'+cls+'">'+txt+'</span>';
+                $(k+'_time').textContent=run?(k=='c'?d.vntsta:d.vntsta2):'-';
+                $(k+'_res').textContent=run?'CPU:'+(k=='c'?d.vntcpu:d.vntscpu)+' 内存:'+(k=='c'?d.vntram:d.vntsram):'-';
+                ver[k].l=(k=='c'?d.vnttag:d.vntstag)||'-';
+                $(k+'_ver').textContent=ver[k].l+(ver[k].r!='-'?'/'+ver[k].r:'');
+            });
+            $('c_a').innerHTML=d.token_set?'<span class="on">✓ 已设置</span>':'<span class="off">✗ 未设置</span>';
+            $('c_b').textContent=d.mode=='static'?'手动指定':'动态分配';
+            $('c_c').textContent=d.ipaddr||'-';
+            $('c_d').textContent=d.vntshost||'-';
+            $('s_a').textContent=d.server_port;
+            $('s_b').innerHTML=d.white_set?'<span class="on">✓ 已设置</span>':'<span class="off">✗ 未设置</span>';
+            $('s_c').textContent=d.subnet;
+            $('s_d').textContent=d.netmask;
+            $('web_btn').style.display=d.web==1?'inline-flex':'none';
+            webPort=d.port;
+        });
+    }
 
-function closeModal(){
-    resetModal();
-    $('m_body').innerHTML='';
-    if(spinEl){spin(spinEl,0);spinEl=null}
-    if(curModal=='settings')status();
-    curModal='';
-}
-window.closeModal=closeModal;
+    function fetchVer(){
+        ['vnt','vnts'].forEach(function(n,i){
+            var k=i==0?'c':'s';
+            ajax('<%=url("admin/vpn/vnt/get_update")%>?type='+(i==0?'client':'server')+'&mirror='+currentMirror,0,function(r){
+                if(!r)return;
+                var d=JSON.parse(r);
+                ver[k].r=d.version||'-';
+                $(k+'_ver').textContent=ver[k].l+(ver[k].r!='-'?'/'+ver[k].r:'');
+            });
+        });
+    }
 
-window.toggleFull=function(){
-    var b=$('mbox');
-    if(!winState.isFull){
-        var rect=b.getBoundingClientRect();
-        winState.w=b.style.width||rect.width+'px';
-        winState.h=b.style.height||rect.height+'px';
-        if(b.style.transform && b.style.transform !== 'none'){
-            winState.isCenter=true;
-            winState.l='';winState.t='';
+    function modal(title,body,foot,icons){
+        var b=$('mbox');
+        resetModal();
+        $('m_title').textContent=title;
+        var mb=$('m_body');
+        mb.innerHTML='';
+        mb.className='mbody';
+        $('m_foot').innerHTML=foot||'';
+        $('m_icons').innerHTML='<span onclick="toggleFull()">⛶</span>'+(icons||'')+'<span onclick="closeModal()">✕</span>';
+        if(body.iframe){
+            mb.innerHTML='<div id="m_loader" class="empty" style="position:absolute;inset:0;background:var(--bg);z-index:1">'+L+'</div><iframe id="m_iframe" style="width:100%;height:100%;border:none"></iframe>';
+            var ifm=$('m_iframe');
+            ifm.onload=function(){
+                var ld=$('m_loader');if(ld)ld.remove();
+                if(spinEl){spin(spinEl,0);spinEl=null}
+            };
+            ifm.src=body.iframe;
         }else{
-            winState.isCenter=false;
-            winState.l=b.style.left;
-            winState.t=b.style.top;
+            mb.innerHTML=body.html||'';
         }
-        winState.isFull=true;
-        b.style.transform='none';
-        b.style.left='0';
-        b.style.top='0';
-        b.style.width='100vw';
-        b.style.height='100vh';
+        b.classList.add('show');
+        initDrag(b);initResize(b);
+    }
+
+    function resetModal(){
+        var b=$('mbox');
+        b.classList.remove('show');
+        b.style.top='50%';
+        b.style.left='50%';
+        b.style.transform='translate(-50%,-50%)';
+        b.style.width='';
+        b.style.height='';
         b.style.margin='0';
-        b.style.borderRadius='0';
-    }else{
-        winState.isFull=false;
-        b.style.width=winState.w;
-        b.style.height=winState.h;
         b.style.borderRadius='15px';
-        if(winState.isCenter){
-            b.style.left='50%';
-            b.style.top='50%';
-            b.style.transform='translate(-50%,-50%)';
-            b.style.margin='0';
-        }else{
-            b.style.transform='none';
-            b.style.left=winState.l;
-            b.style.top=winState.t;
-            b.style.margin='0';
-        }
+        winState.isFull=false;
+        winState.isCenter=true;
+        winState.l='';winState.t='';winState.w='';winState.h='';
     }
-};
 
-function initDrag(b){
-    var h=b.querySelector('.mhead'),dragging=false,ox,oy,bx,by;
-    function start(e){
-        if(e.target.tagName==='SPAN'||e.target.closest('span'))return;
-        if(winState.isFull) return;
-        if(b.style.transform && b.style.transform !== 'none'){
-            var r=b.getBoundingClientRect();
-            b.style.transform='none';
-            b.style.left=r.left+'px';
-            b.style.top=r.top+'px';
-            b.style.margin='0';
-            winState.isCenter=false;
-        }
-        e.preventDefault();dragging=true;
-        var p=e.touches?e.touches[0]:e;
-        ox=p.clientX;oy=p.clientY;bx=parseInt(b.style.left)||0;by=parseInt(b.style.top)||0;
+    function closeModal(){
+        resetModal();
+        $('m_body').innerHTML='';
+        if(spinEl){spin(spinEl,0);spinEl=null}
+        if(curModal=='settings')status();
+        curModal='';
     }
-    function move(e){
-        if(!dragging)return;
-        e.preventDefault();
-        var p=e.touches?e.touches[0]:e;
-        b.style.left=(bx+p.clientX-ox)+'px';
-        b.style.top=(by+p.clientY-oy)+'px';
-    }
-    function end(){dragging=false}
-    h.onmousedown=start;h.ontouchstart=start;
-    document.addEventListener('mousemove',move);
-    document.addEventListener('touchmove',move,{passive:false});
-    document.addEventListener('mouseup',end);
-    document.addEventListener('touchend',end);
-}
-
-function initResize(b){
-    var r=b.querySelector('.mresize'),resizing=false,ow,oh,ox,oy;
-    function start(e){
-        if(winState.isFull) return;
-        if(b.style.transform && b.style.transform !== 'none'){
+    window.closeModal=closeModal;
+    window.toggleFull=function(){
+        var b=$('mbox');
+        if(!winState.isFull){
             var rect=b.getBoundingClientRect();
+            winState.w=b.style.width||rect.width+'px';
+            winState.h=b.style.height||rect.height+'px';
+            if(b.style.transform && b.style.transform !== 'none'){
+                winState.isCenter=true;
+                winState.l='';winState.t='';
+            } else{
+                winState.isCenter=false;
+                winState.l=b.style.left;
+                winState.t=b.style.top;
+            }
+            winState.isFull=true;
             b.style.transform='none';
-            b.style.left=rect.left+'px';
-            b.style.top=rect.top+'px';
+            b.style.left='0';
+            b.style.top='0';
+            b.style.width='100vw';
+            b.style.height='100vh';
             b.style.margin='0';
-            winState.isCenter=false;
+            b.style.borderRadius='0';
+        }else{
+            winState.isFull=false;
+            b.style.width=winState.w;
+            b.style.height=winState.h;
+            b.style.borderRadius='15px';
+            if(winState.isCenter){
+                b.style.left='50%';
+                b.style.top='50%';
+                b.style.transform='translate(-50%,-50%)';
+                b.style.margin='0';
+            } else{
+                b.style.transform='none';
+                b.style.left=winState.l;
+                b.style.top=winState.t;
+                b.style.margin='0';
+            }
         }
-        e.preventDefault();e.stopPropagation();resizing=true;
-        var p=e.touches?e.touches[0]:e;
-        ow=b.offsetWidth;oh=b.offsetHeight;ox=p.clientX;oy=p.clientY;
+    };
+
+    function initDrag(b){
+        var h=b.querySelector('.mhead'),dragging=false,ox,oy,bx,by;
+        function start(e){
+            if(e.target.tagName==='SPAN'||e.target.closest('span'))return;
+            if(winState.isFull) return;
+            if(b.style.transform && b.style.transform !== 'none'){
+                var r=b.getBoundingClientRect();
+                b.style.transform='none';
+                b.style.left=r.left+'px';
+                b.style.top=r.top+'px';
+                b.style.margin='0';
+                winState.isCenter=false;
+            }
+            e.preventDefault();dragging=true;
+            var p=e.touches?e.touches[0]:e;
+            ox=p.clientX;oy=p.clientY;bx=parseInt(b.style.left)||0;by=parseInt(b.style.top)||0;
+        }
+        function move(e){
+            if(!dragging)return;
+            e.preventDefault();
+            var p=e.touches?e.touches[0]:e;
+            b.style.left=(bx+p.clientX-ox)+'px';
+            b.style.top=(by+p.clientY-oy)+'px';
+        }
+        function end(){dragging=false}
+        h.onmousedown=start;h.ontouchstart=start;
+        document.addEventListener('mousemove',move);
+        document.addEventListener('touchmove',move,{passive:false});
+        document.addEventListener('mouseup',end);
+        document.addEventListener('touchend',end);
     }
-    function move(e){
-        if(!resizing)return;
-        e.preventDefault();
-        var p=e.touches?e.touches[0]:e;
-        b.style.width=Math.max(300,ow+p.clientX-ox)+'px';
-        b.style.height=Math.max(200,oh+p.clientY-oy)+'px';
+
+    function initResize(b){
+        var r=b.querySelector('.mresize'),resizing=false,ow,oh,ox,oy;
+        function start(e){
+            if(winState.isFull) return;
+            if(b.style.transform && b.style.transform !== 'none'){
+                var rect=b.getBoundingClientRect();
+                b.style.transform='none';
+                b.style.left=rect.left+'px';
+                b.style.top=rect.top+'px';
+                b.style.margin='0';
+                winState.isCenter=false;
+            }
+            e.preventDefault();e.stopPropagation();resizing=true;
+            var p=e.touches?e.touches[0]:e;
+            ow=b.offsetWidth;oh=b.offsetHeight;ox=p.clientX;oy=p.clientY;
+        }
+        function move(e){
+            if(!resizing)return;
+            e.preventDefault();
+            var p=e.touches?e.touches[0]:e;
+            b.style.width=Math.max(300,ow+p.clientX-ox)+'px';
+            b.style.height=Math.max(200,oh+p.clientY-oy)+'px';
+        }
+        function end(){resizing=false}
+        r.onmousedown=start;r.ontouchstart=start;
+        document.addEventListener('mousemove',move);
+        document.addEventListener('touchmove',move,{passive:false});
+        document.addEventListener('mouseup',end);
+        document.addEventListener('touchend',end);
     }
-    function end(){resizing=false}
-    r.onmousedown=start;r.ontouchstart=start;
-    document.addEventListener('mousemove',move);
-    document.addEventListener('touchmove',move,{passive:false});
-    document.addEventListener('mouseup',end);
-    document.addEventListener('touchend',end);
-}
 
-window.switchTab=function(t){curTab=t;document.querySelectorAll('.btn[data-target]').forEach(function(b){b.classList.toggle('active',b.dataset.target==t)});refreshTab()};
+    window.switchTab=function(t){curTab=t;document.querySelectorAll('.btn[data-target]').forEach(function(b){b.classList.toggle('active',b.dataset.target==t)});refreshTab()};
+    window.refreshTab=function(btn){
+        if(btn)spin(btn.querySelector('span'),1);
+        $('tab_content').innerHTML='<div class="empty">'+L+'</div>';
+        ajax('<%=url("admin/vpn/vnt")%>/'+tabs[curTab],0,function(r){
+            $('tab_content').innerHTML=r?JSON.parse(r).html:'<div class="empty">加载失败</div>';
+            processTableColors();
+            if(btn)spin(btn.querySelector('span'),0);
+        })
+    };
 
-window.refreshTab=function(btn){
-    if(btn)spin(btn.querySelector('span'),1);
-    $('tab_content').innerHTML='<div class="empty">'+L+'</div>';
-    ajax('<%=url("admin/vpn/vnt")%>/'+tabs[curTab],0,function(r){
-        $('tab_content').innerHTML=r?JSON.parse(r).html:'<div class="empty">加载失败</div>';
-        processTableColors();
-        if(btn)spin(btn.querySelector('span'),0);
-    })
-};
+    window.showLog=function(t){
+        curModal=t;var k=t=='client'?'c':'s';
+        modal(cfg[k].name+' 日志',{html:'<pre id="log_pre" style="width:100%;height:100%;margin:0;">'+L+'</pre>'},'<button class="btn-modal primary" onclick="clearLog()">清除日志</button>','<span onclick="refreshLog(this)">🔄</span>');
+        refreshLog();
+    };
 
-window.showLog=function(t){
-    curModal=t;var k=t=='client'?'c':'s';
-    modal(cfg[k].name+' 日志',{html:'<pre id="log_pre" style="width:100%;height:100%;margin:0;">'+L+'</pre>'},'<button class="btn-modal primary" onclick="clearLog()">清除日志</button>','<span onclick="refreshLog(this)">🔄</span>');
-    refreshLog();
-};
-window.refreshLog=function(e){
-    if(e)spin(e,1);
-    ajax('<%=url("admin/vpn/vnt")%>/'+(curModal=='client'?'get_log':'get_log2'),0,function(r){
-        var p=$('log_pre');if(p){p.textContent=r||'暂无日志';p.scrollTop=9e9}if(e)spin(e,0);
-    });
-};
-window.clearLog=function(){ajax('<%=url("admin/vpn/vnt")%>/'+(curModal=='client'?'clear_log':'clear_log2'),0,function(){refreshLog();toast('日志已清除')})};
+    window.refreshLog=function(e){
+        if(e)spin(e,1);
+        ajax('<%=url("admin/vpn/vnt")%>/'+(curModal=='client'?'get_log':'get_log2'),0,function(r){
+            var p=$('log_pre');if(p){p.textContent=r||'暂无日志';p.scrollTop=9e9}if(e)spin(e,0);
+        });
+    };
 
-window.showSettings=function(t,e){
-    var target=e.currentTarget?e.currentTarget:e;
-    if(!target.querySelector('.spin')){spin(target,1);spinEl=target;}
-    curModal='settings';var k=t=='client'?'c':'s';
-    modal(cfg[k].name+' 设置',{iframe:'<%=url("admin/vpn/vnt")%>/popup_'+(t=='client'?'client':'server')});
-};
+    window.clearLog=function(){ajax('<%=url("admin/vpn/vnt")%>/'+(curModal=='client'?'clear_log':'clear_log2'),0,function(){refreshLog();toast('日志已清除')})};
+    window.showSettings=function(t,e){
+        var target=e.currentTarget?e.currentTarget:e;
+        if(!target.querySelector('.spin')){spin(target,1);spinEl=target;}
+        curModal='settings';var k=t=='client'?'c':'s';
+        modal(cfg[k].name+' 设置',{iframe:'<%=url("admin/vpn/vnt")%>/popup_'+(t=='client'?'client':'server')});
+    };
 
-window.restart=function(t,e){
-    var target=e.currentTarget?e.currentTarget:e;
-    spin(target,1);var k=t=='client'?'c':'s';
-    toast(cfg[k].name+' 正在重启...');
-    ajax('<%=url("admin/vpn/vnt/restart")%>','type='+t,function(){setTimeout(function(){status();spin(target,0)},2000)});
-};
+    window.restart=function(t,e){
+        var target=e.currentTarget?e.currentTarget:e;
+        spin(target,1);var k=t=='client'?'c':'s';
+        toast(cfg[k].name+' 正在重启...');
+        ajax('<%=url("admin/vpn/vnt/restart")%>','type='+t,function(){setTimeout(function(){status();spin(target,0)},2000)});
+    };
 
-window.showUpdate=function(t){
-    curModal='update';var k=t=='client'?'c':'s';
-    modal(cfg[k].name+' 更新',{html:'<div class="uinfo" id="u_info">'+L+'</div><div id="u_list"></div>'});
-    ajax('<%=url("admin/vpn/vnt/get_update")%>','type='+t,function(r){
-        if(!r){$('u_info').textContent='获取失败';return}
-        var d=JSON.parse(r);
-        $('u_info').innerHTML='<b>最新版本:</b> v'+d.version+'<br><b>包管理器:</b> '+d.mgr+'<br><b>系统架构:</b> '+d.arch;
-        if(!d.files||!d.files.length){$('u_list').innerHTML='<div class="empty">未找到安装包</div>';return}
-        var h='';d.files.forEach(function(f){h+='<div class="pkg" onclick="installPkg(\''+t+'\',\''+f+'\')"><span>'+f+'</span><span>⬇️</span></div>'});
-        $('u_list').innerHTML=h;
-    });
-};
+    window.showUpdate=function(t){
+        curModal='update';var k=t=='client'?'c':'s';
+        ajax('<%=url("admin/vpn/vnt/get_mirrors")%>', 0, function(mr){
+            var mirrors = mr ? JSON.parse(mr) : [['gitlab', 'GitLab']];
+            var selectedName = '';
+            mirrors.forEach(function(m){
+                if(m[0] == currentMirror) selectedName = m[1];
+            });
+            var selHtml = '<div class="custom-select" id="mirror_dd">';
+            selHtml += '<div class="select-input" onclick="toggleMirrorDropdown()">' + selectedName + '</div>';
+            selHtml += '<div class="select-options" id="mirror_opts">';
+            mirrors.forEach(function(m){
+                selHtml += '<div class="option" data-val="' + m[0] + '" onclick="selectMirror(\''+m[0]+'\', \''+m[1]+'\')">' + m[1] + '</div>';
+            });
+            selHtml += '</div></div>';
+            modal(cfg[k].name+' 更新',{
+                html: '<div class="uinfo" id="u_info">' +
+                '<div style="margin-bottom:10px"><b>镜像源:</b> ' + selHtml + '</div>' +
+                '<div id="u_ver_info">'+L+'</div></div><div id="u_list"></div>'
+            });
+            loadUpdateInfo(t);
+        });
+    };
 
-window.installPkg=function(t,f){
-    if(!confirm('确定安装 '+f+' ?'))return;
-    $('u_list').innerHTML = '<div class="empty"><span class="spin">🔄</span> 下载安装中...</div>';
-    ajax('<%=url("admin/vpn/vnt/do_install")%>','type='+t+'&file='+encodeURIComponent(f),function(r){
-        var d=r?JSON.parse(r):{status:'error',msg:'请求失败'};
-        var color=d.status=='ok'?'var(--c-on)':'var(--c-off)';
-        $('u_list').innerHTML='<div class="empty" style="color:'+color+'">'+(d.status=='ok'?'✓ 安装完成<pre style="width:100%">'+d.msg+'</pre>':'✗ '+d.msg)+'</div>';
-        if(d.status=='ok')setTimeout(status,2000);
-    });
-};
+    window.loadUpdateInfo=function(t){
+        var k=t=='client'?'c':'s';
+        var api = (t=='client'?'vnt':'vnts');
+        $('u_ver_info').innerHTML = L;
+        $('u_list').innerHTML = '';
+        ajax('<%=url("admin/vpn/vnt/get_update")%>','type='+t+'&mirror='+currentMirror,function(r){
+            if(!r){$('u_ver_info').textContent='获取失败';return}
+            var d=JSON.parse(r);
+            $('u_ver_info').innerHTML='<b>Luci 版本:</b> ' + d.luci_version + '<br>' +'<b>最新版本:</b> v'+d.version+'<br><b>包管理器:</b> '+d.mgr+'<br><b>系统架构:</b> '+d.arch;
+            if(!d.files||!d.files.length){
+                $('u_list').innerHTML='<div class="empty">未找到安装包</div>';
+                return
+            }
+            var h='';
+            d.files.forEach(function(f){
+                h+='<div class="pkg" onclick="installPkg(\''+api+'\',\''+currentMirror+'\',\''+f+'\')"><span>'+f+'</span><span>⬇️</span></div>'
+            });
+            $('u_list').innerHTML=h;
+        });
+    };
 
-window.openWeb=function(){window.open('http://'+location.hostname+':'+webPort)};
+    window.toggleMirrorDropdown = function() {
+        var input = document.querySelector('#mirror_dd .select-input');
+        var opts = document.querySelector('#mirror_opts');
+        if(input && opts) {
+            var isOpen = opts.classList.contains('show');
+            input.classList.toggle('active');
+            opts.classList.toggle('show');
+            if(!isOpen) {
+                setTimeout(function(){
+                    document.addEventListener('click', closeMirrorDropdownOutside);
+                }, 0);
+            }
+        }
+    };
 
-initCards();status();fetchVer();switchTab('list');setInterval(status,5000);
+    function closeMirrorDropdownOutside(e) {
+        var dd = document.getElementById('mirror_dd');
+        if (dd && !dd.contains(e.target)) {
+            document.querySelector('#mirror_dd .select-input').classList.remove('active');
+            document.querySelector('#mirror_opts').classList.remove('show');
+            document.removeEventListener('click', closeMirrorDropdownOutside);
+        }
+    }
+
+    window.selectMirror = function(val, name) {
+        var input = document.querySelector('#mirror_dd .select-input');
+        if(input) input.textContent = name;
+        document.querySelector('#mirror_dd .select-input').classList.remove('active');
+        document.querySelector('#mirror_opts').classList.remove('show');
+        document.removeEventListener('click', closeMirrorDropdownOutside);
+        if(currentMirror != val) {
+            currentMirror = val;
+            var t = (curModal == 'update' && $('m_title').textContent.indexOf('vnt-cli') > -1) ? 'client' : 'server';
+            loadUpdateInfo(t);
+            fetchVer();
+        }
+    };
+
+    window.installPkg=function(api, mirror, f){
+        if(!confirm('确定安装 '+f+' ?'))return;
+        $('u_list').innerHTML = '<div class="empty"><span class="spin">🔄</span> 下载安装中...</div>';
+        ajax('<%=url("admin/vpn/vnt/do_install")%>','api='+api+'&mirror='+mirror+'&file='+encodeURIComponent(f),function(r){
+            var d=r?JSON.parse(r):{status:'error',msg:'请求失败'};
+            var color=d.status=='ok'?'var(--c-on)':'var(--c-off)';
+            $('u_list').innerHTML='<div class="empty" style="color:'+color+'">'+(d.status=='ok'?'✓ 安装完成<br/><small>文件已就位，正在刷新状态...</small><pre style="width:100%;max-height:100px;overflow:auto">'+d.msg+'</pre>':'✗ '+d.msg)+'</div>';
+            if(d.status=='ok'){
+                setTimeout(function(){
+                    window.kernelChecked = false;
+                    status();
+                    closeModal();
+                }, 1500);
+            }
+        });
+    };
+    window.openWeb=function(){window.open('http://'+location.hostname+':'+webPort)};
+    initCards();status();fetchVer();switchTab('list');setInterval(status,5000);
 })();
 </script>
 <%+footer%>
