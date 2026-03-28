@@ -18,14 +18,6 @@ define Package/$(PKG_NAME)/conffiles
 /etc/config/vnt
 endef
 
-define Package/$(PKG_NAME)/postinst
-#!/bin/sh
-[ -n "$${IPKG_INSTROOT}" ] || {
-    /etc/init.d/vnt enable
-    /etc/init.d/vnt restart 2>/dev/null || true
-}
-endef
-
 include $(TOPDIR)/feeds/luci/luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature
