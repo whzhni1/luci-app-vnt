@@ -1,47 +1,43 @@
-name: Build Packages
+name: Build luci-app-vnt
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - v*
 
 jobs:
   build:
-    name: Build ${{ matrix.sdk }}
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
-        sdk:
-          - openwrt-24.10
-          - SNAPSHOT
-
+        sdk: [openwrt-24.10, SNAPSHOT]
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Build
-        uses: sbwml/openwrt-gh-action-sdk@go1.25
+      - uses: sbwml/openwrt-gh-action-sdk@main
         env:
           ARCH: x86_64-${{ matrix.sdk }}
           FEEDNAME: packages_ci
           PACKAGES: luci-app-vnt
           NO_REFRESH_CHECK: true
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.sdk }}
-          path: bin/packages/x86_64/packages_ci/*
+          name: ipk-${{ matrix.sdk }}
+          path: bin/packages/x86_64/packages_ci/*.ipk
 
-      - name: Upload to release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: ncipollo/release-action@v1
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - id: ver
+        run: echo "tag=v$(awk -F':=' '/PKG_VERSION/{print $2}' Makefile)" >> $GITHUB_OUTPUT
+      - uses: actions/download-artifact@v4
         with:
-          name: ${{ github.ref_name }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          allowUpdates: true
-          replacesArtifacts: true
-          artifacts: bin/packages/x86_64/packages_ci/*
+          path: ipks
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: luci-app-vnt ${{ steps.ver.outputs.tag }}
+          files: ipks/*.ipk
+          make_latest: true
